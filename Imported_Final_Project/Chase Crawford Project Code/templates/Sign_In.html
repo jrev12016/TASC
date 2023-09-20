@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/static/Sign_In.css">
+        <title>Sign In</title>
+    </head>
+    <body>
+        <ul id="SideNav">
+            <li><a href="Account_Creation.html">Account Creation</a></li>
+            <li><a href="Sign_In.html">Sign In</a></li>
+            <li><a href="Home.html">Your Profile</a></li>
+            <li><a href="Dog_Listing.html">Dog Listings</a></li>
+            <li><a href="Delete_Profile.html">Delete Profile</a></li>
+            
+        </ul>
+        <div style="margin-left:15%;padding:1px 16px;height:1000px;">
+            <header>
+                <h1>Welcome to the Sign In Page</h1>
+            </header>
+
+            <form action="/signingIn" method="post">
+                <label for="UserName">User Name:</label>
+                <input id="UserNameTag" name="Email"><br>
+                <Label for="PasswordTag"> Password:</Label>
+                <input id="PasswordTag" name="Password"><br>
+                <input type="submit" name="" value="Submit">
+            </form>
+            <p>{{result}}</p>
+
+        </div>
+    </body>
+</html>
+
+
+<!--Sources-->
+<!--Creation of the Menu Navigation Bar was in help from this website: https://www.w3schools.com/css/css_navbar.asp -->
+<!--Chatgpt helped me with figuring out that I would need to place the words /static/ next to my css source files to make the css files connect with my html files correctly-->
+<!--Chatgpt helped me with figuring out how to use Jinja syntax with my html files-->

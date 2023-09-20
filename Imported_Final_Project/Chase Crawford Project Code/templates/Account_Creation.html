@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/static/Account_Creation.css">
+        
+        <title>Account Creation</title>
+    </head>
+
+    <body>
+        <script src="/static/Account_Result.js"></script>
+
+        <ul id="SideNav">
+            <li><a href="Account_Creation.html">Account Creation</a></li>
+            <li><a href="Sign_In.html">Sign In</a></li>
+            <li><a href="Home.html">Your Profile</a></li>
+            <li><a href="Dog_Listing.html">Dog Listings</a></li>
+            <li><a href="Delete_Profile.html">Delete Profile</a></li>
+            
+        </ul>
+
+        <div style="margin-left:15%;padding:1px 16px;height:1000px;">
+
+            <header>
+                <h1>Welcome to Account Creation!</h1>
+            </header>
+
+            <p>Please fill out the form below to create your profile for our records.</p>
+
+
+            <form action="/form" method="post" id="ProfileSubmit" onsubmit="formSubmission(event)">
+                <label for="FirstNameTag">First Name:</label> 
+                <input id="FirstNameTag" name="FirstName">
+
+                <label for="LastNameTag">Last Name:</label>
+                <input id="LastNameTag" name="LastName"><br>
+                
+                <label for="EmailTag">Email:</label>
+                <input id="EmailTag" name="Email"><br>
+                
+                <Label for="PasswordTag"> Password:</Label>
+                <input type="password" id="PasswordTag" name="Password">
+                
+                <Label for="ConfirmPasswordTag"> Confirm Password:</Label>
+                <input type="password" id="ConfirmPasswordTag" name="ConfirmPassword">
+                <input type="submit" name="" value="Submit Form">
+            </form>
+            <p>{{result}}</p>
+
+        </div>
+
+    </body>
+</html>
+
+
+<!--Sources-->
+<!--Creation of the Menu Navigation Bar was in help from this website: https://www.w3schools.com/css/css_navbar.asp -->
+<!--Chatgpt helped me with figuring out that I would need to place the words /static/ next to my css source files to make the css files connect with my html files correctly-->
+<!--Chatgpt helped me with figuring out how to use Jinja syntax with my html files-->

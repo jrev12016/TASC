@@ -1,0 +1,49 @@
+body{
+    margin: 0;
+    background-color: #d8d8d8;
+}
+h1{
+    text-decoration: overline;
+    text-decoration-color: #8634aa;
+}
+h2{
+    color: #8634aa;
+}
+h3{
+    color:#8634aa;
+}
+#SideNav {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 15%;
+    height: 100%;
+    position: fixed;
+    overflow: auto;
+    background-color: #f1f1f1;
+}
+
+li a{
+    display: block;
+    color: #000;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+li a.active{
+    background-color: #8634aa;
+    color: white;
+}
+
+li a:hover:not(.active){
+    background-color: #8634aa;
+    color: white;
+}
+
+img{
+    width: 220px;
+    height: 220px;
+    margin: 0%;
+}
+/* Sources */
+/* Creation of the Menu Navigation Bar was in help from this website: https://www.w3schools.com/css/css_navbar.asp */
