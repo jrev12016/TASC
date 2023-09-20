@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <title>Auth</title>
+        <style>
+
+/* body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+} */
+
+body {
+            /* Light cream color for the background */
+            background-image: url('{{ url_for('static', filename='images/img3.jpg') }}');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            width: 100%;
+            height: 100%;
+
+            /* Create a pseudo-element for the blurred background */
+        }
+
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: inherit;
+            filter: blur(3px); /* Adjust the blur intensity (5px) as needed */
+            -webkit-filter: blur(5px); /* For Safari support */
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+
+        h1 {
+            font-size: 36px;
+            color: #333;
+        }
+
+        p {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .welcome-img {
+            margin-top: 20px;
+            border-radius: 50%;
+        }
+
+        .back-link {
+            display: block;
+            margin-top: 30px;
+            color: #337ab7;
+            font-size: 18px;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand">UABCS Coffeeshop</a>
+                </div>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if user == "manager" %}
+                    <li><a href="./manager"><span class="glyphicon glyphicon-wrench"></span>Manager</a></li>
+                    {% endif %} 
+                    <li><a href="./"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+
+                    <li><a href="./index"><span class="glyphicon glyphicon-menu-hamburger"></span> Menu</a></li>                    
+                    <li><a href="./signup"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                    <li><a href="./login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                    <li><a href="./cart"><span class="glyphicon glyphicon-shopping-cart"></span> Cart</a></li>
+
+                    <!-- {% if 'username' in session %}
+                    <li><a href="./cart"><span class="glyphicon glyphicon-shopping-cart"></span> {{ session['username'] }}'s Cart: ${{ '%.2f' % session.total }}</a></li>
+                    {% else %}
+                    <li><a href="./cart"><span class="glyphicon glyphicon-shopping-cart"></span> Cart ${{ '%.2f' % session.total }}</a></li>
+                    {% endif %}   -->
+                </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <h1>Thank you for signing up!</h1>
+            <p>Your account has been created successfully.</p>
+            <img src="https://openclipart.org/image/800px/312459" height="50" width ="50"></img>
+            <p>Welcome!</p>
+            <a href="/login">Back to Login</a>
+            
+        </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+    </body>
+</html>
