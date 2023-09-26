@@ -93,17 +93,16 @@ def process_form():
     firstName = request.form['FirstName']
     lastName = request.form['LastName']
     new_profile = Profile(email=email, password=password, confirmPassword=confirmPassword, firstName=firstName, lastName=lastName)
+    if password != confirmPassword:
+        result = "Password did not match Confirmation Password"
+        return render_template('Account_Creation.html', result=result)
+    if not email or not password or not confirmPassword or not firstName or not lastName:
+        result = "Please fill out all fields"
+        return render_template('Account_Creation.html', result=result)
     if password == confirmPassword:
         db.session.add(new_profile)
         db.session.commit()
         result = "Profile has been created!"
-        return render_template('Account_Creation.html', result=result)
-    if password != confirmPassword:
-        result = "Password did not match Confirmation Password"
-        return render_template('Account_Creation.html', result=result)
-    if email or password or confirmPassword or firstName or lastName == "":
-        result = "Please fill out all fields"
-        db.delete(new_profile)
         return render_template('Account_Creation.html', result=result)
     
 #Singing into Account    
