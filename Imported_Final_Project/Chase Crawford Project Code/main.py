@@ -86,26 +86,38 @@ class Profile(db.Model):
 #Account Creation
 @app.route('/form',methods=['POST'])
 def process_form():
-   
+    list = [".com",".org",".net",".gov",".edu",".mil",".int",".co",".io",".uk",".us",".ca"]
     email = request.form['Email'] 
     password = request.form['Password']
     confirmPassword = request.form['ConfirmPassword']
     firstName = request.form['FirstName']
     lastName = request.form['LastName']
     new_profile = Profile(email=email, password=password, confirmPassword=confirmPassword, firstName=firstName, lastName=lastName)
+    # If password is not the same as the confirmed password, there will be an error message
     if password != confirmPassword:
         result = "Password did not match Confirmation Password"
         return render_template('Account_Creation.html', result=result)
-    if not email or not password or not confirmPassword or not firstName or not lastName:
-        result = "Please fill out all fields"
-        return render_template('Account_Creation.html', result=result)
-    if password == confirmPassword:
+    # If any of the boxes are left blank there will be an error message
+    elif not email or not password or not confirmPassword or not firstName or not lastName:
+        result2 = "Please fill out all fields"
+        return render_template('Account_Creation.html', result2=result2)
+    # If there isn't an @ symbol in the email input, the user did not type in a correct email address and there will be an error message. 
+    elif "@" not in email: 
+        result3 = "Please enter a valid email address"
+        return render_template('Account_Creation.html', result3=result3)
+    # If the user did not type in a Top Level Domain listed in the list (line 89), there will be an error message
+    elif all (i not in email for i in list):
+        result3 = "Please enter a valid email address"
+        return render_template('Account_Creation.html', result3=result3)
+    # If the user inputs everything correctly, the users profile is then placed into the database!
+    # Whats placed into the database: Email, Password, Confirmed Password (Redundant! Gonna need to get rid of this column or change it to something else), First Name, and Last Name. 
+    else:
         db.session.add(new_profile)
         db.session.commit()
-        result = "Profile has been created!"
-        return render_template('Account_Creation.html', result=result)
+        result4 = "Profile has been created!"
+        return render_template('Account_Creation.html', result4=result4)
     
-#Singing into Account    
+#Signing into Account    
 @app.route('/signingIn', methods=['POST'])
 def signingIn():
     email = request.form['Email']
