@@ -1,0 +1,16 @@
+label {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #0074d9;
+    color: #fff;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+label:hover {
+    background-color: #0056b3;
+}
+
+#imageContainer {
+    margin-top: 20px;
+}
