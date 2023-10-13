@@ -2,7 +2,7 @@ const fileInput = document.getElementById('fileInput');
 const selectedImage = document.getElementById('selectedImage');
 const imageContainer = document.getElementById('imageContainer');
 
-fileInput.addEventListener('change', function () {
+function displaySelectedImage(fileInput, selectedImage, imageContainer) {
     const selectedFile = fileInput.files[0];
 
     if (selectedFile) {
@@ -16,4 +16,9 @@ fileInput.addEventListener('change', function () {
 
         reader.readAsDataURL(selectedFile);
     }
+}
+
+fileInput.addEventListener('change', function () {
+    displaySelectedImage(fileInput, selectedImage, imageContainer);
 });
+
