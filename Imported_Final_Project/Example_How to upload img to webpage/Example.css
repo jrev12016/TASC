@@ -14,3 +14,9 @@ label:hover {
 #imageContainer {
     margin-top: 20px;
 }
+
+#selectedImage{
+    width: 250px;
+    height: 250px;
+    border-radius: 25px;
+}
