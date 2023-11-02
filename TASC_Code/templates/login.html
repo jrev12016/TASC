@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Login</title>
+    </head>
+    <body>
+
+        <!-- <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand">UABCS Coffeeshop</a>
+                </div>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if user == "manager" %}
+                    <li><a href="./manager"><span class="glyphicon glyphicon-wrench"></span>Manager</a></li>
+                    {% endif %} 
+                    <li><a href="./"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+                    <li><a href="./index"><span class="glyphicon glyphicon-menu-hamburger"></span> Menu</a></li>
+                    <li><a href="./signup"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+                    <li><a href="./login"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+                    <li><a href="./cart"><span class="glyphicon glyphicon-shopping-cart"></span> Cart</a></li>
+
+                     {% if 'username' in session %}
+                    <li><a href="./cart"><span class="glyphicon glyphicon-shopping-cart"></span> {{ session['username'] }}'s Cart: ${{ '%.2f' % session.total }}</a></li>
+                    {% else %}
+                    <li><a href="./cart"><span class="glyphicon glyphicon-shopping-cart"></span> Cart ${{ '%.2f' % session.total }}</a></li>
+                    {% endif %}            
+                 </ul>
+            </div>
+        </nav> -->
+        <div class="container">
+            <h1>Login Page</h1>
+            {% for mesg in get_flashed_messages() %}
+                    <h2>{{ mesg }}</h2>
+            {% endfor %}
+            <div>
+                <p>Please login below</p>
+                <form method = "post">
+                    {{form.hidden_tag()}}
+                    {{form.username.label}} {{form.username}}
+                    <br>
+                    {{form.password.label}} <input type="password" name="{{form.password.name}}">
+                    <br>
+                    {{form.submit}}          
+                    <br>              
+                </form>
+                <!-- error display function -->
+                {% if error %}
+                <p>{{ error }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </body>
+</html>
