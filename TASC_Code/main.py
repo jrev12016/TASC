@@ -1,6 +1,6 @@
 from flask import Flask, render_template, session, redirect, url_for, flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, TextAreaField, SubmitField, IntegerField
+from wtforms import StringField, FloatField, TextAreaField, SubmitField, IntegerField, BooleanField
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
 
@@ -15,10 +15,43 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+""" I kept user here so that the pages still work. This will be phased out to Student and TA as we move forward"""
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False)
+
+class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+
+class TA(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(50), unique=True, nullable=False)
+    password = db.Column(db.String(50), nullable=False)
+    name = db.Column(db.String(50), nullable=False)
+
+class Class(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    classname = db.Column(db.String(50), unique=True, nullable=False)
+    ta = db.Column(db.String(50), nullable=False)
+
+class Appointment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    available = db.Column(db.Boolean, nullable=False)
+    filled = db.Column(db.Boolean, nullable=False)
+    ta = db.Column(db.String(50), unique=True, nullable=False)
+    date = db.Column(db.String(50), nullable=False)
+    time = db.Column(db.Float, nullable=False)
+
+""" We may need to add a FlaskForm to collect the message data and store it from the webpage, similar to signup page/user db """
+class Message(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    subject = db.Column(db.String(50), nullable=False)
+    body = db.Column(db.String(50), nullable=False)
+    date = db.Column(db.String(50), nullable=False)
+    time = db.Column(db.Float, nullable=False)
 
 class MyForm(FlaskForm):
     username = StringField('Please enter your username:', validators=[DataRequired()])
