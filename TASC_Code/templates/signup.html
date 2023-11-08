@@ -11,10 +11,11 @@
         {% endif %}
         <div class="container">
             <h1>Signup Page</h1>
-            <div>
                 <p>Please signup below</p>
                 <form method = "post" action="{{ url_for('signup') }}">
                     {{form.hidden_tag()}}
+                    {{form.user_type.label}} {{form.user_type}}
+                    <br>
                     {{form.username.label}} {{form.username}}
                     <br>
                     {{form.password.label}} <input type="password" name="{{form.password.name}}">

@@ -1,6 +1,6 @@
 from flask import Flask, render_template, session, redirect, url_for, flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, TextAreaField, SubmitField, IntegerField, BooleanField
+from wtforms import StringField, FloatField, TextAreaField, SubmitField, IntegerField, BooleanField, SelectField
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
 
@@ -15,11 +15,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-""" I kept user here so that the pages still work. This will be phased out to Student and TA as we move forward"""
+""" Added user_type to denote Admin, TA, & Student """
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    user_type = db.Column(db.String(50), nullable=False)
     username = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(50), nullable=False)
+    
     
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -54,10 +56,17 @@ class Message(db.Model):
     date = db.Column(db.String(50), nullable=False)
     time = db.Column(db.Float, nullable=False)
 
+class SignupForm(FlaskForm):
+    user_type = SelectField('Please select user type:', choices=[(1, 'Admin'), (2, 'TA'), (3, 'Student')], validators=[DataRequired()])
+    username = StringField('Please enter your username:', validators=[DataRequired()])
+    password = StringField('Please enter your password:', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
 class MyForm(FlaskForm):
     username = StringField('Please enter your username:', validators=[DataRequired()])
     password = StringField('Please enter your password:', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
 
 @app.route('/')
 
@@ -74,8 +83,9 @@ def home():
 
 def signup():
 
-    form = MyForm()
+    form = SignupForm()
     if form.validate_on_submit():
+        user_type = form.user_type.data
         username = form.username.data
         password = form.password.data
 
@@ -84,7 +94,7 @@ def signup():
             error = "Username already taken. Please choose a different username."
             return render_template('signup.html', form=form, error=error)
         
-        user = User(username=username, password=password)
+        user = User(user_type=user_type, username=username, password=password)
         db.session.add(user)
         db.session.commit()
         
