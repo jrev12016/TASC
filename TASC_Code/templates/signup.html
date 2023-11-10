@@ -16,9 +16,11 @@
                     {{form.hidden_tag()}}
                     {{form.user_type.label}} {{form.user_type}}
                     <br>
-                    {{form.username.label}} {{form.username}}
+                    {{form.user_name.label}} {{form.user_name}}
                     <br>
                     {{form.password.label}} <input type="password" name="{{form.password.name}}">
+                    <br>
+                    {{form.display_name.label}} {{form.display_name}}
                     <br>
                     {{form.submit}}                        
                 </form>

@@ -15,25 +15,14 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-""" Added user_type to denote Admin, TA, & Student """
+""" Added user_type to denote admin, TA, & Student """
 class User(db.Model):
+    
     id = db.Column(db.Integer, primary_key=True)
     user_type = db.Column(db.String(50), nullable=False)
-    username = db.Column(db.String(50), unique=True, nullable=False)
+    user_name = db.Column(db.String(50), unique=True, nullable=False)
     password = db.Column(db.String(50), nullable=False)
-    
-    
-class Student(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(50), nullable=False)
-    name = db.Column(db.String(50), nullable=False)
-
-class TA(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    password = db.Column(db.String(50), nullable=False)
-    name = db.Column(db.String(50), nullable=False)
+    display_name = db.Column(db.String(50), nullable=False)
 
 class Class(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -57,13 +46,14 @@ class Message(db.Model):
     time = db.Column(db.Float, nullable=False)
 
 class SignupForm(FlaskForm):
-    user_type = SelectField('Please select user type:', choices=[(1, 'Admin'), (2, 'TA'), (3, 'Student')], validators=[DataRequired()])
-    username = StringField('Please enter your username:', validators=[DataRequired()])
+    user_type = SelectField('Please select user type:', choices=[('Admin', 'Admin'), ('TA', 'TA'), ('Student', 'Student')], validators=[DataRequired()])
+    user_name = StringField('Please enter your username:', validators=[DataRequired()])
     password = StringField('Please enter your password:', validators=[DataRequired()])
+    display_name = StringField('Please enter your first and last names:', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
-class MyForm(FlaskForm):
-    username = StringField('Please enter your username:', validators=[DataRequired()])
+class LoginForm(FlaskForm):
+    user_name = StringField('Please enter your username:', validators=[DataRequired()])
     password = StringField('Please enter your password:', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
@@ -75,9 +65,13 @@ def home():
         if 'user_id' not in session:
             flash('Please log in to continue.', 'warning')
             return redirect(url_for('login'))
-       
-        user = User.query.get(session['user_id']).username
-        return render_template('home.html', user=user)
+        
+        user_id = User.query.get(session['user_id']).id
+        user_name = User.query.get(session['user_id']).user_name
+        user_type = User.query.get(session['user_id']).user_type
+        display_name = User.query.get(session['user_id']).display_name
+        
+        return render_template('home.html', user_id=user_id, user_name=user_name, user_type=user_type, display_name=display_name)
 
 @app.route('/signup', methods=['GET','POST'])
 
@@ -85,16 +79,17 @@ def signup():
 
     form = SignupForm()
     if form.validate_on_submit():
-        user_type = form.user_type.data
-        username = form.username.data
+        user_name = form.user_name.data
         password = form.password.data
+        user_type = form.user_type.data
+        display_name = form.display_name.data
 
-        existing_user = User.query.filter_by(username=username).first()
+        existing_user = User.query.filter_by(user_name=user_name).first()
         if existing_user:
             error = "Username already taken. Please choose a different username."
             return render_template('signup.html', form=form, error=error)
         
-        user = User(user_type=user_type, username=username, password=password)
+        user = User(user_name=user_name, password=password, user_type=user_type, display_name=display_name)
         db.session.add(user)
         db.session.commit()
         
@@ -102,7 +97,7 @@ def signup():
 
     return render_template('signup.html', form=form)
 
-@app.route('/auth')
+@app.route('/auth', methods=['GET', 'POST'])
 
 def auth():
 
@@ -112,17 +107,19 @@ def auth():
 
 def login():
 
-    form = MyForm()  
+    form = LoginForm()  
     if form.validate_on_submit():
-        username = form.username.data
+        user_name = form.user_name.data
         password = form.password.data
         
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(user_name=user_name).first()        
 
-        # check for correct username and password
+        # check for correct user_name and password
         if user and password == user.password:
             session['user_id'] = user.id
-            session['username'] = username.capitalize()
+            session['user_name'] = user_name.capitalize()
+            session['user_type'] = user.user_type
+            session['display_name'] = user.display_name
             return redirect(url_for('home'))
         else:
             # Failed login, show an error message
