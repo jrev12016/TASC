@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Student</title>
+    </head>
+    <body>
+        <div class="container">
+            <p>Welcome!</p>
+            <p>{{ TA_choices }}</p>
+            <br>
+                <form method = "post">
+                    {{form.hidden_tag()}}
+                    {{form.TA.label}} {{form.TA}}
+                    <br>
+                    {{form.day.label}} {{form.day}}
+                    <br>
+                    {{form.submit}}          
+                    <br>              
+                </form>
+            <br>
+        </div>
+    </body>
+</html>
