@@ -76,7 +76,7 @@ def home():
         
     # checks to see if user is logged in, if not redirects to login page
     if 'user_id' not in session:
-        flash('Please log in to continue.', 'warning')
+        # flash('Please log in to continue.', 'warning')
         return redirect(url_for('login'))
         
     # Only for testing currently
@@ -124,7 +124,7 @@ def signup():
             error = "Passwords do not match."
             return render_template('signup.html', form=form, error=error)
         
-        return redirect(url_for('auth'))
+        return render_template('signup.html')
 
     return render_template('signup.html', form=form)
 
@@ -151,7 +151,12 @@ def login():
             session['user_name'] = user_name.capitalize()
             session['user_type'] = user.user_type
             session['display_name'] = user.display_name
-            return redirect(url_for('home'))
+
+            if user.user_type == 'Student':
+                return redirect(url_for('student'))
+            
+            else:
+                return redirect(url_for('home'))
         else:
             # Failed login, show an error message
             # error function in signup page
@@ -171,34 +176,27 @@ def student():
     form = MakeAppt()
     form.TA.choices = TA_choices
     if form.validate_on_submit():
-        session['TA']  = form.TA.data
-        session['day'] = form.day.data
-        return redirect(url_for('show_times'))
-
+        TA = form.TA.data
+        day = form.day.data
+        list = []
+        list.append((('9:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().nine)))
+        list.append((('10:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().ten)))
+        list.append((('11:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().eleven)))
+        list.append((('12:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().twelve)))
+        list.append((('1:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().one)))
+        list.append((('2:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().two)))
+        list.append((('3:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().three)))
+        list.append((('4:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().four)))
+        return render_template('student.html', TA=TA, day=day, list=list)
 
     return render_template('student.html', form=form)
 
-@app.route ('/show_times', methods=['GET', 'POST'])
+@app.route('/logout', methods=['GET', 'POST'])
 
-def show_times():
-    # shows available times
+def logout():
 
-    TA = session.get('TA')
-    day = session.get('day')
-    list = []
-    list.append(Appointment.query.filter_by(TA_id=TA, day=day).first().nine)
-    list.append(Appointment.query.filter_by(TA_id=TA, day=day).first().ten)
-    list.append(Appointment.query.filter_by(TA_id=TA, day=day).first().eleven)
-    list.append(Appointment.query.filter_by(TA_id=TA, day=day).first().twelve)
-    list.append(Appointment.query.filter_by(TA_id=TA, day=day).first().one)
-    list.append(Appointment.query.filter_by(TA_id=TA, day=day).first().two)
-    list.append(Appointment.query.filter_by(TA_id=TA, day=day).first().three)
-    list.append(Appointment.query.filter_by(TA_id=TA, day=day).first().four)
-    
-    return render_template('show_times.html', TA=TA, day=day, list=list)
-
-
-
+    session.clear()
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     with app.app_context():

@@ -17,6 +17,9 @@
             <br>
             <p>{{ display_name }}</p>
             <br>
+            <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
+                <button type="submit" class="btn btn-primary" value="Logout">Logout</button>
+            </form>
         </div>
     </body>
 </html>
