@@ -23,7 +23,11 @@
                 {% else %}
                     <p>{{ TA }}</p>
                     <p>{{ day }}</p>
-                    <p>{{ list }}</p>
+                    <select id="dropdown" name="available_times">
+                        {% for time in list_available %}
+                            <option value="{{ time }}">{{ time }}</option>
+                        {% endfor %}
+                    </select>
                 {% endif %}
                 <br>
             <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">

@@ -187,7 +187,15 @@ def student():
         list.append((('2:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().two)))
         list.append((('3:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().three)))
         list.append((('4:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().four)))
-        return render_template('student.html', TA=TA, day=day, list=list)
+        
+        # Only display available times
+        list_available = []
+        for times in list:
+            time, conditional = times
+            if conditional:
+                list_available.append(time)
+            
+        return render_template('student.html', TA=TA, day=day, list_available=list_available)
 
     return render_template('student.html', form=form)
 
