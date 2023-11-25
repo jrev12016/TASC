@@ -70,24 +70,8 @@ class MakeAppt(FlaskForm):
     day = SelectField('Please select the appointment day:', choices=[('Monday','Monday'),('Tuesday','Tuesday'),('Wednesday','Wednesday'),('Thursday','Thursday'),('Friday','Friday')], validators=[DataRequired()])
     submit = SubmitField('Submit')
 
-@app.route('/')
-
-def home():
-        
-    # checks to see if user is logged in, if not redirects to login page
-    if 'user_id' not in session:
-        # flash('Please log in to continue.', 'warning')
-        return redirect(url_for('login'))
-        
-    # Only for testing currently
-    user_id = User.query.get(session['user_id']).id
-    user_name = User.query.get(session['user_id']).user_name
-    user_type = User.query.get(session['user_id']).user_type
-    display_name = User.query.get(session['user_id']).display_name
-        
-    return render_template('home.html', user_id=user_id, user_name=user_name, user_type=user_type, display_name=display_name)
-
-@app.route('/signup', methods=['GET','POST'])
+# Default page changed from home to signup
+@app.route('/', methods=['GET','POST'])
 
 def signup():
     
@@ -128,6 +112,23 @@ def signup():
 
     return render_template('signup.html', form=form)
 
+@app.route('/home', methods=['GET','POST'])
+    
+def home():
+        
+    # checks to see if user is logged in, if not redirects to login page
+    if 'user_id' not in session:
+        # flash('Please log in to continue.', 'warning')
+        return redirect(url_for('login'))
+        
+    # Only for testing currently
+    user_id = User.query.get(session['user_id']).id
+    user_name = User.query.get(session['user_id']).user_name
+    user_type = User.query.get(session['user_id']).user_type
+    display_name = User.query.get(session['user_id']).display_name
+        
+    return render_template('home.html', user_id=user_id, user_name=user_name, user_type=user_type, display_name=display_name)
+
 @app.route('/auth', methods=['GET', 'POST'])
 
 def auth():
@@ -155,6 +156,8 @@ def login():
             if user.user_type == 'Student':
                 return redirect(url_for('student'))
             
+            elif user.user_type == 'TA':
+                return redirect(url_for('ta'))
             else:
                 return redirect(url_for('home'))
         else:
@@ -198,6 +201,11 @@ def student():
         return render_template('student.html', TA=TA, day=day, list_available=list_available)
 
     return render_template('student.html', form=form)
+
+@app.route('/ta', methods=['GET', 'POST'])
+
+def ta():
+    return render_template('ta.html')
 
 @app.route('/logout', methods=['GET', 'POST'])
 
