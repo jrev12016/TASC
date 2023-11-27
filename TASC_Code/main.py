@@ -30,7 +30,7 @@ class User(db.Model):
 class Class(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     classname = db.Column(db.String(50), unique=True, nullable=False)
-    ta = db.Column(db.String(50), nullable=False)
+    ta = db.Column(db.Integer, nullable=False) # changed to integer from String of length 50
 
 # set up to query by TA, day of the week, and each hour slot from 9am-4pm
 class Appointment(db.Model):
