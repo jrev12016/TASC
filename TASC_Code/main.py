@@ -23,6 +23,9 @@ class User(db.Model):
     password = db.Column(db.String(50), nullable=False)
     display_name = db.Column(db.String(50), nullable=False)
 
+    # added relationship for TA
+    #classes = db.relationship('Class', secondary='ta_class_association', backref=db.backref('tas', lazy='dynamic'))
+
 # not used as of now
 class Class(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -155,7 +158,6 @@ def login():
 
             if user.user_type == 'Student':
                 return redirect(url_for('student'))
-            
             elif user.user_type == 'TA':
                 return redirect(url_for('ta'))
             else:
@@ -169,7 +171,6 @@ def login():
     return render_template('login.html', form=form)
 
 @app.route('/student', methods=['GET', 'POST'])
-
 def student():
 
     TAs = User.query.filter_by(user_type='TA').all()
@@ -203,7 +204,6 @@ def student():
     return render_template('student.html', form=form)
 
 @app.route('/ta', methods=['GET', 'POST'])
-
 def ta():
     return render_template('ta.html')
 

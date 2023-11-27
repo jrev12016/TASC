@@ -27,6 +27,7 @@
                         <br>
                         {{form.submit}}                        
                     </form>
+                    <p>Already have an account? <a href="{{ url_for('login') }}">Log in here</a>.</p>
                 {% else %}
                     <h1>Thank you for signing up!</h1>
                     <p>Your account has been created successfully.</p>

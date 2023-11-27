@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h2>Welcome, {{ session['display_name'] }} ({{ session['user_name'] }})</h2>
+  <h3>Select Your Classes:</h3>
+  <form method="POST" action="{{ url_for('select_classes') }}">
+    {% for class in available_classes %}
+      <input type="checkbox" name="selected_classes" value="{{ class.id }}" {% if class in ta.classes %}checked{% endif %}>
+      {{ class.classname }}<br>
+    {% endfor %}
+    <button type="submit">Save</button>
+  </form>
+{% endblock %}
