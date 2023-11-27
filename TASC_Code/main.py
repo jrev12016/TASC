@@ -73,6 +73,16 @@ class MakeAppt(FlaskForm):
     day = SelectField('Please select the appointment day:', choices=[('Monday','Monday'),('Tuesday','Tuesday'),('Wednesday','Wednesday'),('Thursday','Thursday'),('Friday','Friday')], validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+# Form to let TAs submit/create a class
+class AddClassForm(FlaskForm):
+    classname = StringField('Class Name', validators=[DataRequired()])
+    monday = BooleanField('Monday')
+    tuesday = BooleanField('Tuesday')
+    wednesday = BooleanField('Wednesday')
+    thursday = BooleanField('Thursday')
+    friday = BooleanField('Friday')
+    submit = SubmitField('Add Class')
+
 # Default page changed from home to signup
 @app.route('/', methods=['GET','POST'])
 
@@ -205,10 +215,26 @@ def student():
 
 @app.route('/ta', methods=['GET', 'POST'])
 def ta():
-    return render_template('ta.html')
+    form = AddClassForm()
+
+    if form.validate_on_submit():
+        classname = form.classname.data
+        ta_username = session.get('user_name')
+
+        # Create a new class entry
+        new_class = Class(classname=classname, ta=ta_username)
+        db.session.add(new_class)
+        db.session.commit()
+
+        flash('Class added successfully!', 'success')
+        return redirect(url_for('ta'))
+    
+    ta_username = session.get('user_name')
+    enrolled_classes = Class.query.filter_by(ta=ta_username).all()
+    
+    return render_template('ta.html', form = form, enrolled_classes = enrolled_classes)
 
 @app.route('/logout', methods=['GET', 'POST'])
-
 def logout():
 
     session.clear()

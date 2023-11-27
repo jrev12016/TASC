@@ -1,21 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>TA</title>
-    </head>
-    <body>
-        <div class="container">
-            <p>Welcome, {{session['user_name']}}!</p>
-                <br>
-                <h3>Appointments</h3>
-                <br>
-            <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
-                <button type="submit" class="btn btn-primary" value="Logout">Logout</button>
-            </form>
-        </div>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TA</title>
+</head>
+<body>
+    <div class="container">
+        <p>Welcome, {{ session['user_name'] }}!</p>
+        <br>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+        <h3>Add Class</h3>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div>
+                {{ form.classname.label }}: {{ form.classname() }}
+            </div>
+            <button type="submit">Add Class</button>
+        </form>
+        
+        <h3>Enrolled Classes</h3>
+        {% if enrolled_classes %}
+            <ul>
+                {% for enrolled_class in enrolled_classes %}
+                    <li>{{ enrolled_class.classname }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No classes enrolled yet.</p>
+        {% endif %}
+
+        <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
+            <button type="submit" class="btn btn-primary" value="Logout">Logout</button>
+        </form>
+    </div>
+</body>
 </html>
 
 
