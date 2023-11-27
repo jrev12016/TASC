@@ -226,6 +226,20 @@ def ta():
         db.session.add(new_class)
         db.session.commit()
 
+        # Update availability for the new class
+        if form.monday.data:
+            new_class.monday = True
+        if form.tuesday.data:
+            new_class.tuesday = True
+        if form.wednesday.data:
+            new_class.wednesday = True
+        if form.thursday.data:
+            new_class.thursday = True
+        if form.friday.data:
+            new_class.friday = True
+
+        db.session.commit()
+
         flash('Class added successfully!', 'success')
         return redirect(url_for('ta'))
     
