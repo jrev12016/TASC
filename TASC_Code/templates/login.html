@@ -15,15 +15,13 @@
                 <p>Please login below</p>
                 <form method = "post">
                     {{form.hidden_tag()}}
-                    {{form.user_name.label}} {{form.user_name}}
+                    {{form.username.label}} {{form.username}}
                     <br>
                     {{form.password.label}} <input type="password" name="{{form.password.name}}">
                     <br>
                     {{form.submit}}          
                     <br>              
                 </form>
-                <br>
-                <a href="./">No login? Sign up here</a>
                 <!-- error display function -->
                 {% if error %}
                 <p>{{ error }}</p>

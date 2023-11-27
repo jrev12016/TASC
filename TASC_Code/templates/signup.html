@@ -11,28 +11,16 @@
         {% endif %}
         <div class="container">
             <h1>Signup Page</h1>
-                {% if form %}
-                    <p>Please signup below</p>
-                    <form method = "post" >
-                        {{form.hidden_tag()}}
-                        {{form.user_type.label}} {{form.user_type}}
-                        <br>
-                        {{form.user_name.label}} {{form.user_name}}
-                        <br>
-                        {{form.password.label}} <input type="password" name="{{form.password.name}}">
-                        <br>
-                        {{form.confirm_password.label}} <input type="password" name="{{form.confirm_password.name}}">
-                        <br>
-                        {{form.display_name.label}} {{form.display_name}}
-                        <br>
-                        {{form.submit}}                        
-                    </form>
-                {% else %}
-                    <h1>Thank you for signing up!</h1>
-                    <p>Your account has been created successfully.</p>
-                    <p>Welcome!</p>
-                    <a href="/login">Back to Login</a>
-                {% endif %}
+            <div>
+                <p>Please signup below</p>
+                <form method = "post" action="{{ url_for('signup') }}">
+                    {{form.hidden_tag()}}
+                    {{form.username.label}} {{form.username}}
+                    <br>
+                    {{form.password.label}} <input type="password" name="{{form.password.name}}">
+                    <br>
+                    {{form.submit}}                        
+                </form>
             </div>
         </div>
     </body>
