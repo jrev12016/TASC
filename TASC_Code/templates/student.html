@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Student</title>
+    </head>
+    <body>
+        <div class="container">
+            <p>Welcome Student</p>
+                <br>
+                <h3>Schedule Appointment</h3>
+                {% if form %}
+                    <form method = "post">
+                        {{form.hidden_tag()}}
+                        {{form.TA.label}} {{form.TA}}
+                        <br>
+                        {{form.day.label}} {{form.day}}
+                        <br>
+                        {{form.submit}}          
+                        <br>              
+                    </form>
+                {% else %}
+                    <p>{{ TA }}</p>
+                    <p>{{ day }}</p>
+                    <select id="dropdown" name="available_times">
+                        {% for time in list_available %}
+                            <option value="{{ time }}">{{ time }}</option>
+                        {% endfor %}
+                    </select>
+                {% endif %}
+                <br>
+            <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
+                <button type="submit" class="btn btn-primary" value="Logout">Logout</button>
+            </form>
+        </div>
+    </body>
+</html>
