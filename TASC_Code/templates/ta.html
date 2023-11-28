@@ -40,34 +40,45 @@
         {% endif %}
 
         <h3>Update Availability</h3>
-        <form method="POST">
+        <form method="POST" action="{{ url_for('ta') }}">
             {{ update_availability_form.hidden_tag() }}
+            
             <div>
-                {{ update_availability_form.monday.label }}: {{ update_availability_form.monday() }}
+                {{ update_availability_form.monday_start.label }}: {{ update_availability_form.monday_start(format='%H:%M') }}
+                {{ update_availability_form.monday_end.label }}: {{ update_availability_form.monday_end(format='%H:%M') }}
             </div>
+            
             <div>
-                {{ update_availability_form.tuesday.label }}: {{ update_availability_form.tuesday() }}
+                {{ update_availability_form.tuesday_start.label }}: {{ update_availability_form.tuesday_start(format='%H:%M') }}
+                {{ update_availability_form.tuesday_end.label }}: {{ update_availability_form.tuesday_end(format='%H:%M') }}
             </div>
+            
             <div>
-                {{ update_availability_form.wednesday.label }}: {{ update_availability_form.wednesday() }}
+                {{ update_availability_form.wednesday_start.label }}: {{ update_availability_form.wednesday_start(format='%H:%M') }}
+                {{ update_availability_form.wednesday_end.label }}: {{ update_availability_form.wednesday_end(format='%H:%M') }}
             </div>
+            
             <div>
-                {{ update_availability_form.thursday.label }}: {{ update_availability_form.thursday() }}
+                {{ update_availability_form.thursday_start.label }}: {{ update_availability_form.thursday_start(format='%H:%M') }}
+                {{ update_availability_form.thursday_end.label }}: {{ update_availability_form.thursday_end(format='%H:%M') }}
             </div>
+            
             <div>
-                {{ update_availability_form.friday.label }}: {{ update_availability_form.friday() }}
+                {{ update_availability_form.friday_start.label }}: {{ update_availability_form.friday_start(format='%H:%M') }}
+                {{ update_availability_form.friday_end.label }}: {{ update_availability_form.friday_end(format='%H:%M') }}
             </div>
+            
             <button type="submit">Update Availability</button>
         </form>
 
         <h3>TA Availability</h3>
         {% if ta_availability %}
             <ul>
-                <li>Monday: {% if ta_availability.monday %}Available{% else %}Not Available{% endif %}</li>
-                <li>Tuesday: {% if ta_availability.tuesday %}Available{% else %}Not Available{% endif %}</li>
-                <li>Wednesday: {% if ta_availability.wednesday %}Available{% else %}Not Available{% endif %}</li>
-                <li>Thursday: {% if ta_availability.thursday %}Available{% else %}Not Available{% endif %}</li>
-                <li>Friday: {% if ta_availability.friday %}Available{% else %}Not Available{% endif %}</li>
+                <li>Monday: {% if ta_availability.monday_start %}{{ ta_availability.monday_start.strftime('%H:%M') }} - {{ ta_availability.monday_end.strftime('%H:%M') }}{% else %}Not Available{% endif %}</li>
+                <li>Tuesday: {% if ta_availability.tuesday_start %}{{ ta_availability.tuesday_start.strftime('%H:%M') }} - {{ ta_availability.tuesday_end.strftime('%H:%M') }}{% else %}Not Available{% endif %}</li>
+                <li>Wednesday: {% if ta_availability.wednesday_start %}{{ ta_availability.wednesday_start.strftime('%H:%M') }} - {{ ta_availability.wednesday_end.strftime('%H:%M') }}{% else %}Not Available{% endif %}</li>
+                <li>Thursday: {% if ta_availability.thursday_start %}{{ ta_availability.thursday_start.strftime('%H:%M') }} - {{ ta_availability.thursday_end.strftime('%H:%M') }}{% else %}Not Available{% endif %}</li>
+                <li>Friday: {% if ta_availability.friday_start %}{{ ta_availability.friday_start.strftime('%H:%M') }} - {{ ta_availability.friday_end.strftime('%H:%M') }}{% else %}Not Available{% endif %}</li>
             </ul>
         {% else %}
             <p>No availability set yet.</p>

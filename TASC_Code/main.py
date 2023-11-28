@@ -5,6 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
 from flask_login import current_user # currently not being used
 from flask import request
+from wtforms import StringField, SubmitField, validators
 
 app = Flask (__name__)
 
@@ -51,16 +52,16 @@ class Appointment(db.Model):
 class TAAvailability(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    monday = db.Column(db.Boolean, nullable=False, default=False)
-    tuesday = db.Column(db.Boolean, nullable=False, default=False)
-    wednesday = db.Column(db.Boolean, nullable=False, default=False)
-    thursday = db.Column(db.Boolean, nullable=False, default=False)
-    friday = db.Column(db.Boolean, nullable=False, default=False)
-    #available = db.Column(db.Boolean, nullable=False) took this out after changing day to each day
-
-    # this will not be used directly, but rather only for debugging
-    def __repr__(self):
-        return f"TAAvailability(ta_id={self.ta_id}, day={self.day}, available={self.available})"
+    monday_start = db.Column(db.Time)
+    monday_end = db.Column(db.Time)
+    tuesday_start = db.Column(db.Time)
+    tuesday_end = db.Column(db.Time)
+    wednesday_start = db.Column(db.Time)
+    wednesday_end = db.Column(db.Time)
+    thursday_start = db.Column(db.Time)
+    thursday_end = db.Column(db.Time)
+    friday_start = db.Column(db.Time)
+    friday_end = db.Column(db.Time)
 
 # We may need to add a FlaskForm to collect the message data and store it from the webpage, similar to signup page/user db
 class Message(db.Model):
@@ -97,18 +98,28 @@ class AddClassForm(FlaskForm):
 
 # Form to let TAs submit their availability
 class UpdateAvailabilityForm(FlaskForm):
-    monday = BooleanField('Monday')
-    tuesday = BooleanField('Tuesday')
-    wednesday = BooleanField('Wednesday')
-    thursday = BooleanField('Thursday')
-    friday = BooleanField('Friday')
+    monday_start = StringField('Monday Start Time', validators=[validators.Regexp(r'^\d{2}:\d{2}$', message='Invalid time format (HH:MM)')])
+    monday_end = StringField('Monday End Time', validators=[validators.Regexp(r'^\d{2}:\d{2}$', message='Invalid time format (HH:MM)')])
+
+    tuesday_start = StringField('Tuesday Start Time', validators=[validators.Regexp(r'^\d{2}:\d{2}$', message='Invalid time format (HH:MM)')])
+    tuesday_end = StringField('Tuesday End Time', validators=[validators.Regexp(r'^\d{2}:\d{2}$', message='Invalid time format (HH:MM)')])
+
+    wednesday_start = StringField('Wednesday Start Time', validators=[validators.Regexp(r'^\d{2}:\d{2}$', message='Invalid time format (HH:MM)')])
+    wednesday_end = StringField('Wednesday End Time', validators=[validators.Regexp(r'^\d{2}:\d{2}$', message='Invalid time format (HH:MM)')])
+
+    thursday_start = StringField('Thursday Start Time', validators=[validators.Regexp(r'^\d{2}:\d{2}$', message='Invalid time format (HH:MM)')])
+    thursday_end = StringField('Thursday End Time', validators=[validators.Regexp(r'^\d{2}:\d{2}$', message='Invalid time format (HH:MM)')])
+
+    friday_start = StringField('Friday Start Time', validators=[validators.Regexp(r'^\d{2}:\d{2}$', message='Invalid time format (HH:MM)')])
+    friday_end = StringField('Friday End Time', validators=[validators.Regexp(r'^\d{2}:\d{2}$', message='Invalid time format (HH:MM)')])
+
     submit = SubmitField('Update Availability')
 
 # Default page changed from home to signup
 @app.route('/', methods=['GET','POST'])
 
 def signup():
-    
+
     form = SignupForm()
     if form.validate_on_submit():
         user_name = form.user_name.data
@@ -239,14 +250,18 @@ def ta():
     add_class_form = AddClassForm()
     update_availability_form = UpdateAvailabilityForm()
 
+    ta_id = session['user_id']
+    
     # Retrieve TA availability outside the form validation block
-    ta_availability = TAAvailability.query.filter_by(ta_id=session['user_id']).first()
+    ta_availability = TAAvailability.query.filter_by(ta_id=ta_id).first()
 
     if request.method == 'POST':
         # handles adding a class
         if add_class_form.validate_on_submit():
             classname = add_class_form.classname.data
-            new_class = Class(classname=classname, ta_id=session['user_id'])
+
+            # Create a new class entry
+            new_class = Class(classname=classname, ta_id=ta_id)
     
             try:
                 db.session.add(new_class)
@@ -258,30 +273,47 @@ def ta():
 
         # handles changing availability
         elif update_availability_form.validate_on_submit():
+            print("Form is valid. Processing availability update.")
             # Update availability for the new class
             if ta_availability is None:
-                ta_availability = TAAvailability(ta_id=session['user_id'])
+                ta_availability = TAAvailability(ta_id=ta_id)
 
-            ta_availability.monday = update_availability_form.monday.data
-            ta_availability.tuesday = update_availability_form.tuesday.data
-            ta_availability.wednesday = update_availability_form.wednesday.data
-            ta_availability.thursday = update_availability_form.thursday.data
-            ta_availability.friday = update_availability_form.friday.data
+            ta_availability.monday_start = update_availability_form.monday_start.data
+            ta_availability.monday_end = update_availability_form.monday_end.data
+
+            ta_availability.tuesday_start = update_availability_form.tuesday_start.data
+            ta_availability.tuesday_end = update_availability_form.tuesday_end.data
+
+            ta_availability.wednesday_start = update_availability_form.wednesday_start.data
+            ta_availability.wednesday_end = update_availability_form.wednesday_end.data
+
+            ta_availability.thursday_start = update_availability_form.thursday_start.data
+            ta_availability.thursday_end = update_availability_form.thursday_end.data
+
+            ta_availability.friday_start = update_availability_form.friday_start.data
+            ta_availability.friday_end = update_availability_form.friday_end.data
+
+            print("debug point 1")
+            print(ta_availability)
 
             try:
                 db.session.add(ta_availability)
                 db.session.commit()
+                print("debug point 2")
                 flash('Availability updated successfully!', 'success')
             except Exception as e:
                 print(f"Error committing availability changes: {e}")
                 db.session.rollback()
+        else:
+            print("form validation failed")
+            print(update_availability_form.errors)
 
         return redirect(url_for('ta'))
    
     ta_username = session.get('user_name')
-    enrolled_classes = Class.query.filter_by(ta_id=session['user_id']).all()
+    enrolled_classes = Class.query.filter_by(ta_id=ta_id).all()
 
-    return render_template('ta.html', add_class_form = add_class_form, update_availability_form = update_availability_form, enrolled_classes = enrolled_classes, ta_availability = ta_availability)
+    return render_template('ta.html', add_class_form=add_class_form, update_availability_form=update_availability_form, enrolled_classes=enrolled_classes, ta_availability=ta_availability)
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
