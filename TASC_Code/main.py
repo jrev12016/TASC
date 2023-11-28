@@ -266,7 +266,7 @@ def ta():
             try:
                 db.session.add(new_class)
                 db.session.commit()
-                flash('Class added successfully!', 'success') 
+                flash(f'Class {classname} added successfully!', 'success')
             except Exception as e:
                 print(f"Error committing ta changes: {e}")
                 db.session.rollback()
