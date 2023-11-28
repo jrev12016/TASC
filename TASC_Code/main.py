@@ -247,11 +247,11 @@ def ta():
         if add_class_form.validate_on_submit():
             classname = add_class_form.classname.data
             new_class = Class(classname=classname, ta_id=session['user_id'])
-    
+
             try:
                 db.session.add(new_class)
                 db.session.commit()
-                flash('Class added successfully!', 'success') 
+                flash(f'Class {classname} added successfully!', 'success')
             except Exception as e:
                 print(f"Error committing ta changes: {e}")
                 db.session.rollback()
