@@ -3,6 +3,13 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, TextAreaField, SubmitField, IntegerField, BooleanField, SelectField
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
+from flask_login import current_user # currently not being used
+from flask import request
+from wtforms import StringField, SubmitField, validators
+from datetime import datetime
+from wtforms.fields import HiddenField
+from flask import jsonify
+from flask import current_app
 
 app = Flask (__name__)
 
@@ -26,13 +33,13 @@ class User(db.Model):
     # added relationship for TA
     #classes = db.relationship('Class', secondary='ta_class_association', backref=db.backref('tas', lazy='dynamic'))
 
-# not used as of now
 class Class(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    classname = db.Column(db.String(50), unique=True, nullable=False)
-    ta = db.Column(db.Integer, nullable=False) # changed to integer from String of length 50
+    classname = db.Column(db.String(50), nullable=False) 
+    ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # changed to integer from String of length 50 #also added db.ForeignKey
 
 # set up to query by TA, day of the week, and each hour slot from 9am-4pm
+# created another table below to allow for this^
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     TA_id = db.Column(db.Integer, nullable=False)
@@ -46,6 +53,20 @@ class Appointment(db.Model):
     three = db.Column(db.Boolean, nullable=False)
     four = db.Column(db.Boolean, nullable=False)
 
+class TAAvailability(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    monday_start = db.Column(db.String(10))
+    monday_end = db.Column(db.String(10))
+    tuesday_start = db.Column(db.String(10))
+    tuesday_end = db.Column(db.String(10))
+    wednesday_start = db.Column(db.String(10))
+    wednesday_end = db.Column(db.String(10))
+    thursday_start = db.Column(db.String(10))
+    thursday_end = db.Column(db.String(10))
+    friday_start = db.Column(db.String(10))
+    friday_end = db.Column(db.String(10))
+
 # We may need to add a FlaskForm to collect the message data and store it from the webpage, similar to signup page/user db
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -53,6 +74,11 @@ class Message(db.Model):
     body = db.Column(db.String(50), nullable=False)
     date = db.Column(db.String(50), nullable=False)
     time = db.Column(db.Float, nullable=False)
+
+def get_time_intervals():
+    # Generate time intervals from 8:00 AM to 5:00 PM with 30-minute increments
+    intervals = [(f'{hour:02d}:{minute:02d}', f'{hour % 12 or 12:02d}:{minute:02d} {"AM" if hour < 12 else "PM"}') for hour in range(8, 17) for minute in [0, 30]]
+    return intervals
 
 class SignupForm(FlaskForm):
     user_type = SelectField('Please select user type:', choices=[('Admin', 'Admin'), ('TA', 'TA'), ('Student', 'Student')], validators=[DataRequired()])
@@ -67,27 +93,55 @@ class LoginForm(FlaskForm):
     password = StringField('Please enter your password:', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
+
 # Form to let student scehdule an appointment
-class MakeAppt(FlaskForm):
-    TA = SelectField('Please select your TA:', coerce=int, validators=[DataRequired()])
-    day = SelectField('Please select the appointment day:', choices=[('Monday','Monday'),('Tuesday','Tuesday'),('Wednesday','Wednesday'),('Thursday','Thursday'),('Friday','Friday')], validators=[DataRequired()])
+class StudentAppointmentForm(FlaskForm):
+    class_choice = SelectField('Select Class', choices = [], validators=[DataRequired()])
+    ta_choice = SelectField('Select TA:', choices = [], validators=[DataRequired()])
+    day_choice = SelectField('Select Day', choices=[], validators=[DataRequired()])
+    time_choice = SelectField('Select Time', choices=[], validators=[DataRequired()])
+    question = TextAreaField('Optional Question to Send')
     submit = SubmitField('Submit')
 
 # Form to let TAs submit/create a class
 class AddClassForm(FlaskForm):
     classname = StringField('Class Name', validators=[DataRequired()])
-    monday = BooleanField('Monday')
-    tuesday = BooleanField('Tuesday')
-    wednesday = BooleanField('Wednesday')
-    thursday = BooleanField('Thursday')
-    friday = BooleanField('Friday')
     submit = SubmitField('Add Class')
+
+# Form to let TAs submit their availability
+class UpdateAvailabilityForm(FlaskForm):
+    available_times = [
+        '08:00am', '08:30am', '09:00am', '09:30am', '10:00am',
+        '10:30am', '11:00am', '11:30am', '12:00pm', '12:30pm',
+        '01:00pm', '01:30pm', '02:00pm', '02:30pm', '03:00pm',
+        '03:30pm', '04:00pm', '04:30pm', '05:00pm'
+    ]
+
+    # Add "Not Available" option
+    choices = [(time, time) for time in available_times]
+    choices.append(('not_available', 'Not Available'))
+
+    monday_start = SelectField('Monday Start Time', choices=choices, default='not_available')
+    monday_end = SelectField('Monday End Time', choices=choices, default='not_available')
+
+    tuesday_start = SelectField('Tuesday Start Time', choices=choices, default='not_available')
+    tuesday_end = SelectField('Tuesday End Time', choices=choices, default='not_available')
+
+    wednesday_start = SelectField('Wednesday Start Time', choices=choices, default='not_available')
+    wednesday_end = SelectField('Wednesday End Time', choices=choices, default='not_available')
+
+    thursday_start = SelectField('Thursday Start Time', choices=choices, default='not_available')
+    thursday_end = SelectField('Thursday End Time', choices=choices, default='not_available')
+
+    friday_start = SelectField('Friday Start Time', choices=choices, default='not_available')
+    friday_end = SelectField('Friday End Time', choices=choices, default='not_available')
+
+    submit = SubmitField('Update Availability')
 
 # Default page changed from home to signup
 @app.route('/', methods=['GET','POST'])
-
 def signup():
-    
+
     form = SignupForm()
     if form.validate_on_submit():
         user_name = form.user_name.data
@@ -126,7 +180,6 @@ def signup():
     return render_template('signup.html', form=form)
 
 @app.route('/home', methods=['GET','POST'])
-    
 def home():
         
     # checks to see if user is logged in, if not redirects to login page
@@ -143,13 +196,11 @@ def home():
     return render_template('home.html', user_id=user_id, user_name=user_name, user_type=user_type, display_name=display_name)
 
 @app.route('/auth', methods=['GET', 'POST'])
-
 def auth():
     # shows confirmation of new account creation
     return render_template('auth.html')
 
 @app.route ('/login', methods=['GET', 'POST'])
-
 def login():
 
     form = LoginForm()  
@@ -182,77 +233,143 @@ def login():
 
 @app.route('/student', methods=['GET', 'POST'])
 def student():
+    # Check if the user is logged in; if not, redirect to login page
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
 
-    TAs = User.query.filter_by(user_type='TA').all()
-    TA_choices = [(ta.id, ta.display_name) for ta in TAs]
+    # Get user information
+    user_id = User.query.get(session['user_id']).id
+    user_name = User.query.get(session['user_id']).user_name
+    user_type = User.query.get(session['user_id']).user_type
+    display_name = User.query.get(session['user_id']).display_name
 
-    # Form to schedule an appointment
-    form = MakeAppt()
-    form.TA.choices = TA_choices
+    # Create an instance of the StudentAppointmentForm
+    form = StudentAppointmentForm()
+
+    # Get a list of unique classes from the database
+    available_classes = Class.query.distinct(Class.classname).all()
+    class_names = list(set(course.classname for course in available_classes))
+
     if form.validate_on_submit():
-        TA = form.TA.data
-        day = form.day.data
-        list = []
-        list.append((('9:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().nine)))
-        list.append((('10:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().ten)))
-        list.append((('11:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().eleven)))
-        list.append((('12:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().twelve)))
-        list.append((('1:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().one)))
-        list.append((('2:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().two)))
-        list.append((('3:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().three)))
-        list.append((('4:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().four)))
-        
-        # Only display available times
-        list_available = []
-        for times in list:
-            time, conditional = times
-            if conditional:
-                list_available.append(time)
-            
-        return render_template('student.html', TA=TA, day=day, list_available=list_available)
+        # If the form is submitted, get the selected class and fetch TAs
+        selected_class = form.class_choice.data
+        #tas_response = get_tas(selected_class)
 
-    return render_template('student.html', form=form)
+        # Render the student page with class names, selected class, and TAs
+        return render_template('student.html', user_id=user_id, user_name=user_name, user_type=user_type,
+                                display_name=display_name, form=form, tas_response=None, class_names=class_names)
+
+    # Render the student page with unique class names and the form
+    return render_template('student.html', user_id=user_id, user_name=user_name, user_type=user_type,
+                            display_name=display_name, class_names=class_names, form=form, tas_response=None)
+    
+
+    
 
 @app.route('/ta', methods=['GET', 'POST'])
 def ta():
-    form = AddClassForm()
+    add_class_form = AddClassForm()
+    update_availability_form = UpdateAvailabilityForm()
 
-    if form.validate_on_submit():
-        classname = form.classname.data
-        ta_username = session.get('user_name')
+    ta_id = session['user_id']    
 
-        # Create a new class entry
-        new_class = Class(classname=classname, ta=ta_username)
-        db.session.add(new_class)
-        db.session.commit()
+    # Retrieve TA availability outside the form validation block
+    ta_availability = TAAvailability.query.filter_by(ta_id=ta_id).first()
 
-        # Update availability for the new class
-        if form.monday.data:
-            new_class.monday = True
-        if form.tuesday.data:
-            new_class.tuesday = True
-        if form.wednesday.data:
-            new_class.wednesday = True
-        if form.thursday.data:
-            new_class.thursday = True
-        if form.friday.data:
-            new_class.friday = True
+    if request.method == 'POST':
+        print(request.form)
+        # handles adding a class
+        if add_class_form.validate_on_submit():
+            classname = add_class_form.classname.data
 
-        db.session.commit()
+            # Create a new class entry
+            new_class = Class(classname=classname, ta_id=ta_id)
+    
+            try:
+                db.session.add(new_class)
+                db.session.commit()
+                flash(f'Class {classname} added successfully!', 'success')
+            except Exception as e:
+                print(f"Error committing ta changes: {e}")
+                db.session.rollback()
 
-        flash('Class added successfully!', 'success')
+        # handles changing availability
+        elif update_availability_form.validate_on_submit():
+            # Update availability for the new class
+            if ta_availability is None:
+                ta_availability = TAAvailability(ta_id=ta_id)
+
+            for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
+                start_time = getattr(update_availability_form, f"{day.lower()}_start").data
+                end_time = getattr(update_availability_form, f"{day.lower()}_end").data
+                
+                if start_time and end_time:
+                    if start_time == 'not_available' or end_time == 'not_available':
+                        setattr(ta_availability, f"{day.lower()}_start", None)
+                        setattr(ta_availability, f"{day.lower()}_end", None)
+                    else:
+                        setattr(ta_availability, f"{day.lower()}_start", start_time)
+                        setattr(ta_availability, f"{day.lower()}_end", end_time)
+                else:
+                    # Handle the case where no time is selected
+                    setattr(ta_availability, f"{day.lower()}_start", None)
+                    setattr(ta_availability, f"{day.lower()}_end", None)
+
+            try:
+                db.session.add(ta_availability)
+                db.session.commit()
+                flash('Availability updated successfully!', 'success')
+            except Exception as e:
+                print(f"Error committing availability changes: {e}")
+                db.session.rollback()
+        else:
+            print("form validation failed")
+            print(update_availability_form.errors)
+
         return redirect(url_for('ta'))
-    
+   
     ta_username = session.get('user_name')
-    enrolled_classes = Class.query.filter_by(ta=ta_username).all()
-    
-    return render_template('ta.html', form = form, enrolled_classes = enrolled_classes)
+    enrolled_classes = Class.query.filter_by(ta_id=ta_id).all()
+
+    return render_template('ta.html', add_class_form=add_class_form, update_availability_form=update_availability_form, enrolled_classes=enrolled_classes, ta_availability=ta_availability)
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
 
     session.clear()
     return redirect(url_for('login'))
+
+
+@app.route('/get_tas', methods=['POST'])
+def get_tas():
+    try:
+        selected_class = request.form.get('class_name')
+
+        # Query your database to get the ta_id for the selected class
+        selected_class_obj = Class.query.filter_by(classname=selected_class).first()
+
+        if selected_class_obj:
+            ta_id_for_class = selected_class_obj.ta_id
+
+            # Query the User table to get the name of the TA based on ta_id
+            ta_for_class = User.query.filter_by(id=ta_id_for_class).first()
+
+            if ta_for_class:
+                current_app.logger.info(f"Successfully retrieved TA for class: {ta_for_class.user_name}")
+                return jsonify({'TAs': [ta_for_class.user_name]})
+            else:
+                current_app.logger.error("TA not found")
+                return jsonify({'error': 'TA not found'}), 404
+        else:
+            current_app.logger.error("Class not found")
+            return jsonify({'error': 'Class not found'}), 404
+    except Exception as e:
+        current_app.logger.error(f"An error occurred: {e}")
+        return jsonify({'error': 'An error occurred'}), 500
+    
+@app.route('/test_route', methods=['POST'])
+def test_route():
+    return jsonify({'message': 'Test route success!'})
 
 if __name__ == '__main__':
     with app.app_context():

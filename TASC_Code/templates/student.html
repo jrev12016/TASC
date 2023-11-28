@@ -1,38 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Student</title>
-    </head>
-    <body>
-        <div class="container">
-            <p>Welcome, {{session['user_name']}}!</p>
-                <br>
-                <h3>Schedule Appointment</h3>
-                {% if form %}
-                    <form method = "post">
-                        {{form.hidden_tag()}}
-                        {{form.TA.label}} {{form.TA}}
-                        <br>
-                        {{form.day.label}} {{form.day}}
-                        <br>
-                        {{form.submit}}          
-                        <br>              
-                    </form>
-                {% else %}
-                    <p>{{ TA }}</p>
-                    <p>{{ day }}</p>
-                    <select id="dropdown" name="available_times">
-                        {% for time in list_available %}
-                            <option value="{{ time }}">{{ time }}</option>
-                        {% endfor %}
-                    </select>
-                {% endif %}
-                <br>
-            <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
-                <button type="submit" class="btn btn-primary" value="Logout">Logout</button>
-            </form>
-        </div>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Page</title>
+    <!-- Include any necessary stylesheets or scripts here -->
+</head>
+<body>
+    <h1>Welcome, {{ session['user_name'] }} (Student)!</h1>
+
+    <!-- Display any flash messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Form to let students schedule an appointment -->
+    <form method="POST" action="{{ url_for('student') }}">
+        {{ form.csrf_token }}
+        
+        <!-- Select Class -->
+        <label for="class_choice">Select Class:</label>
+        <select id="class_choice" name="class_choice" onchange="getTAs()">
+            <option value="" disabled selected>Select Class</option>
+            {% for class_name in class_names %}
+                <option value="{{ class_name }}">{{ class_name }}</option>
+            {% endfor %}
+        </select>
+        
+        <!-- Select TA -->
+        <label for="ta_choice">Select TA:</label>
+        <select id="ta_choice" name="ta_choice">
+            <!-- Options will be populated dynamically using JavaScript -->
+        </select>
+
+        <!-- Select Day -->
+        <label for="day_choice">Select Day:</label>
+        <select id="day_choice" name="day_choice">
+            <!-- Include options for days -->
+            <option value="Monday">Monday</option>
+            <option value="Tuesday">Tuesday</option>
+            <option value="Wednesday">Wednesday</option>
+            <option value="Thursday">Thursday</option>
+            <option value="Friday">Friday</option>
+        </select>
+
+        <!-- Select Time -->
+        <label for="time_choice">Select Time:</label>
+        <select id="time_choice" name="time_choice">
+            <!-- Include options for times -->
+            <option value="08:00am">08:00am</option>
+            <!-- Add other time options dynamically if needed -->
+        </select>
+
+        <!-- Optional Question -->
+        <label for="question">Optional Question to Send:</label>
+        <textarea id="question" name="question" rows="4" cols="50"></textarea>
+
+        <!-- Submit Button -->
+        <input type="submit" value="Submit">
+    </form>
+
+    <!-- Include any necessary scripts, such as the script to fetch TAs based on selected class -->
+    <script>
+        function getTAs() {
+            console.log('function getTAs() triggered');
+        // Your JavaScript logic to fetch TAs based on the selected class and populate the TA dropdown
+        // Example: use fetch or AJAX to call the get_tas route and update the ta_choice dropdown
+        var selectedClass = document.getElementById("class_choice").value;
+        var taDropdown = document.getElementById("ta_choice");
+
+        console.log(selectedClass);
+
+        // Ensure selectedClass is not empty
+        if (selectedClass) {
+            // Use fetch to make a POST request to the get_tas route
+            fetch('/get_tas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ class_name: selectedClass })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Ensure data.TAs is an array before iterating
+                if (data && data.TAs && Array.isArray(data.TAs)) {
+                    data.TAs.forEach(function(ta) {
+                        // update the TA dropdown
+                        var option = document.createElement("option");
+                        option.value = ta;
+                        option.text = ta;
+                        taDropdown.appendChild(option);
+                    });
+                } else {
+                    console.error('Invalid response format:', data);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching TAs:', error);
+            });
+        }
+    }
+    </script>
+</body>
 </html>
