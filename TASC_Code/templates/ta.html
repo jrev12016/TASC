@@ -53,6 +53,19 @@
             <p>No classes enrolled yet.</p>
         {% endif %}
 
+        <h3>TA Availability</h3>
+        {% if ta_availability %}
+        <ul>
+            <li>Monday: {% if ta_availability.monday %}Available{% else %}Not Available{% endif %}</li>
+            <li>Tuesday: {% if ta_availability.tuesday %}Available{% else %}Not Available{% endif %}</li>
+            <li>Wednesday: {% if ta_availability.wednesday %}Available{% else %}Not Available{% endif %}</li>
+            <li>Thursday: {% if ta_availability.thursday %}Available{% else %}Not Available{% endif %}</li>
+            <li>Friday: {% if ta_availability.friday %}Available{% else %}Not Available{% endif %}</li>
+        </ul>
+        {% else %}
+            <p>No availability set yet.</p>
+        {% endif %}
+
         <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
             <button type="submit" class="btn btn-primary" value="Logout">Logout</button>
         </form>

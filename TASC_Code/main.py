@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, TextAreaField, SubmitField, IntegerField, BooleanField, SelectField
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
+from flask_login import current_user
 
 app = Flask (__name__)
 
@@ -26,13 +27,13 @@ class User(db.Model):
     # added relationship for TA
     #classes = db.relationship('Class', secondary='ta_class_association', backref=db.backref('tas', lazy='dynamic'))
 
-# not used as of now
 class Class(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    classname = db.Column(db.String(50), unique=True, nullable=False)
-    ta = db.Column(db.Integer, nullable=False) # changed to integer from String of length 50
+    classname = db.Column(db.String(50), nullable=False) #took out unique = true
+    ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # changed to integer from String of length 50 #also added db.ForeignKey
 
 # set up to query by TA, day of the week, and each hour slot from 9am-4pm
+# created another table below to allow for this^
 class Appointment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     TA_id = db.Column(db.Integer, nullable=False)
@@ -45,6 +46,20 @@ class Appointment(db.Model):
     two = db.Column(db.Boolean, nullable=False)
     three = db.Column(db.Boolean, nullable=False)
     four = db.Column(db.Boolean, nullable=False)
+
+class TAAvailability(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    monday = db.Column(db.Boolean, nullable=False, default=False)
+    tuesday = db.Column(db.Boolean, nullable=False, default=False)
+    wednesday = db.Column(db.Boolean, nullable=False, default=False)
+    thursday = db.Column(db.Boolean, nullable=False, default=False)
+    friday = db.Column(db.Boolean, nullable=False, default=False)
+    #available = db.Column(db.Boolean, nullable=False) took this out after changing day to each day
+
+    # this will not be used directly, but rather only for debugging
+    def __repr__(self):
+        return f"TAAvailability(ta_id={self.ta_id}, day={self.day}, available={self.available})"
 
 # We may need to add a FlaskForm to collect the message data and store it from the webpage, similar to signup page/user db
 class Message(db.Model):
@@ -66,6 +81,7 @@ class LoginForm(FlaskForm):
     user_name = StringField('Please enter your username:', validators=[DataRequired()])
     password = StringField('Please enter your password:', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
 
 # Form to let student scehdule an appointment
 class MakeAppt(FlaskForm):
@@ -217,36 +233,57 @@ def student():
 def ta():
     form = AddClassForm()
 
+    # Retrieve TA availability outside the form validation block
+    ta_availability = TAAvailability.query.filter_by(ta_id=session['user_id']).first()
+
     if form.validate_on_submit():
         classname = form.classname.data
         ta_username = session.get('user_name')
 
         # Create a new class entry
-        new_class = Class(classname=classname, ta=ta_username)
-        db.session.add(new_class)
-        db.session.commit()
+        new_class = Class(classname = classname, ta_id=session['user_id']) #changed ta=ta_username to ta_id = session[user_id]
 
         # Update availability for the new class
+        if ta_availability is None:
+            ta_availability = TAAvailability(ta_id=session['user_id'])
+        
         if form.monday.data:
             new_class.monday = True
+            ta_availability.monday = True
+
         if form.tuesday.data:
             new_class.tuesday = True
+            ta_availability.tuesday = True
+
         if form.wednesday.data:
             new_class.wednesday = True
+            ta_availability.wednesday = True
+
         if form.thursday.data:
             new_class.thursday = True
+            ta_availability.thursday = True
+
         if form.friday.data:
             new_class.friday = True
+            ta_availability.friday = True 
+        
+        try:
+            db.session.add(new_class)
+            db.session.add(ta_availability)
+            db.session.commit()
+            flash('Class added successfully!', 'success') 
+        except Exception as e:
+            print(f"Error committing ta changes: {e}")
+            db.session.rollback()
 
-        db.session.commit()
-
-        flash('Class added successfully!', 'success')
         return redirect(url_for('ta'))
     
     ta_username = session.get('user_name')
-    enrolled_classes = Class.query.filter_by(ta=ta_username).all()
-    
-    return render_template('ta.html', form = form, enrolled_classes = enrolled_classes)
+    enrolled_classes = Class.query.filter_by(ta_id=session['user_id']).all()
+
+    # Retrieve TA availability
+    # ta_availability = TAAvailability.query.filter_by(ta_id=session['user_id']).all()
+    return render_template('ta.html', form = form, enrolled_classes = enrolled_classes, ta_availability = ta_availability)
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
