@@ -9,6 +9,7 @@ from wtforms import StringField, SubmitField, validators
 from datetime import datetime
 from wtforms.fields import HiddenField
 from flask import jsonify
+from flask import current_app
 
 app = Flask (__name__)
 
@@ -34,7 +35,7 @@ class User(db.Model):
 
 class Class(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    classname = db.Column(db.String(50), nullable=False) #took out unique = true
+    classname = db.Column(db.String(50), nullable=False) 
     ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False) # changed to integer from String of length 50 #also added db.ForeignKey
 
 # set up to query by TA, day of the week, and each hour slot from 9am-4pm
@@ -338,26 +339,37 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+
 @app.route('/get_tas', methods=['POST'])
 def get_tas():
-    selected_class = request.form.get('class_name')
+    try:
+        selected_class = request.form.get('class_name')
 
-    # Query your database to get the ta_id for the selected class
-    selected_class_obj = Class.query.filter_by(classname=selected_class).first()
+        # Query your database to get the ta_id for the selected class
+        selected_class_obj = Class.query.filter_by(classname=selected_class).first()
 
-    if selected_class_obj:
-        ta_id_for_class = selected_class_obj.ta_id
+        if selected_class_obj:
+            ta_id_for_class = selected_class_obj.ta_id
 
-        # Query the User table to get the name of the TA based on ta_id
-        ta_for_class = User.query.filter_by(id=ta_id_for_class).first()
+            # Query the User table to get the name of the TA based on ta_id
+            ta_for_class = User.query.filter_by(id=ta_id_for_class).first()
 
-        if ta_for_class:
-            return jsonify({'TAs': [ta_for_class.user_name]})
+            if ta_for_class:
+                current_app.logger.info(f"Successfully retrieved TA for class: {ta_for_class.user_name}")
+                return jsonify({'TAs': [ta_for_class.user_name]})
+            else:
+                current_app.logger.error("TA not found")
+                return jsonify({'error': 'TA not found'}), 404
         else:
-            return jsonify({'error': 'TA not found'}), 404
-    else:
-        # Handle the case where the class is not found
-        return jsonify({'error': 'Class not found'}), 404
+            current_app.logger.error("Class not found")
+            return jsonify({'error': 'Class not found'}), 404
+    except Exception as e:
+        current_app.logger.error(f"An error occurred: {e}")
+        return jsonify({'error': 'An error occurred'}), 500
+    
+@app.route('/test_route', methods=['POST'])
+def test_route():
+    return jsonify({'message': 'Test route success!'})
 
 if __name__ == '__main__':
     with app.app_context():
