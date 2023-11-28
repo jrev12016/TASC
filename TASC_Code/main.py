@@ -3,7 +3,8 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, TextAreaField, SubmitField, IntegerField, BooleanField, SelectField
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
-from flask_login import current_user
+from flask_login import current_user # currently not being used
+from flask import request
 
 app = Flask (__name__)
 
@@ -92,12 +93,16 @@ class MakeAppt(FlaskForm):
 # Form to let TAs submit/create a class
 class AddClassForm(FlaskForm):
     classname = StringField('Class Name', validators=[DataRequired()])
+    submit = SubmitField('Add Class')
+
+# Form to let TAs submit their availability
+class UpdateAvailabilityForm(FlaskForm):
     monday = BooleanField('Monday')
     tuesday = BooleanField('Tuesday')
     wednesday = BooleanField('Wednesday')
     thursday = BooleanField('Thursday')
     friday = BooleanField('Friday')
-    submit = SubmitField('Add Class')
+    submit = SubmitField('Update Availability')
 
 # Default page changed from home to signup
 @app.route('/', methods=['GET','POST'])
@@ -231,59 +236,52 @@ def student():
 
 @app.route('/ta', methods=['GET', 'POST'])
 def ta():
-    form = AddClassForm()
+    add_class_form = AddClassForm()
+    update_availability_form = UpdateAvailabilityForm()
 
     # Retrieve TA availability outside the form validation block
     ta_availability = TAAvailability.query.filter_by(ta_id=session['user_id']).first()
 
-    if form.validate_on_submit():
-        classname = form.classname.data
-        ta_username = session.get('user_name')
+    if request.method == 'POST':
+        # handles adding a class
+        if add_class_form.validate_on_submit():
+            classname = add_class_form.classname.data
+            new_class = Class(classname=classname, ta_id=session['user_id'])
+    
+            try:
+                db.session.add(new_class)
+                db.session.commit()
+                flash('Class added successfully!', 'success') 
+            except Exception as e:
+                print(f"Error committing ta changes: {e}")
+                db.session.rollback()
 
-        # Create a new class entry
-        new_class = Class(classname = classname, ta_id=session['user_id']) #changed ta=ta_username to ta_id = session[user_id]
+        # handles changing availability
+        elif update_availability_form.validate_on_submit():
+            # Update availability for the new class
+            if ta_availability is None:
+                ta_availability = TAAvailability(ta_id=session['user_id'])
 
-        # Update availability for the new class
-        if ta_availability is None:
-            ta_availability = TAAvailability(ta_id=session['user_id'])
-        
-        if form.monday.data:
-            new_class.monday = True
-            ta_availability.monday = True
+            ta_availability.monday = update_availability_form.monday.data
+            ta_availability.tuesday = update_availability_form.tuesday.data
+            ta_availability.wednesday = update_availability_form.wednesday.data
+            ta_availability.thursday = update_availability_form.thursday.data
+            ta_availability.friday = update_availability_form.friday.data
 
-        if form.tuesday.data:
-            new_class.tuesday = True
-            ta_availability.tuesday = True
-
-        if form.wednesday.data:
-            new_class.wednesday = True
-            ta_availability.wednesday = True
-
-        if form.thursday.data:
-            new_class.thursday = True
-            ta_availability.thursday = True
-
-        if form.friday.data:
-            new_class.friday = True
-            ta_availability.friday = True 
-        
-        try:
-            db.session.add(new_class)
-            db.session.add(ta_availability)
-            db.session.commit()
-            flash('Class added successfully!', 'success') 
-        except Exception as e:
-            print(f"Error committing ta changes: {e}")
-            db.session.rollback()
+            try:
+                db.session.add(ta_availability)
+                db.session.commit()
+                flash('Availability updated successfully!', 'success')
+            except Exception as e:
+                print(f"Error committing availability changes: {e}")
+                db.session.rollback()
 
         return redirect(url_for('ta'))
-    
+   
     ta_username = session.get('user_name')
     enrolled_classes = Class.query.filter_by(ta_id=session['user_id']).all()
 
-    # Retrieve TA availability
-    # ta_availability = TAAvailability.query.filter_by(ta_id=session['user_id']).all()
-    return render_template('ta.html', form = form, enrolled_classes = enrolled_classes, ta_availability = ta_availability)
+    return render_template('ta.html', add_class_form = add_class_form, update_availability_form = update_availability_form, enrolled_classes = enrolled_classes, ta_availability = ta_availability)
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():

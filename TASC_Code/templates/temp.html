@@ -55,11 +55,13 @@
 
         <h3>TA Availability</h3>
         {% if ta_availability %}
-            <ul>
-                {% for availability in ta_availability %}
-                    <li>{{ availability.day }}: {% if availability.available %}Available{% else %}Not Available{% endif %}</li>
-                {% endfor %}
-            </ul>
+        <ul>
+            <li>Monday: {% if ta_availability.monday %}Available{% else %}Not Available{% endif %}</li>
+            <li>Tuesday: {% if ta_availability.tuesday %}Available{% else %}Not Available{% endif %}</li>
+            <li>Wednesday: {% if ta_availability.wednesday %}Available{% else %}Not Available{% endif %}</li>
+            <li>Thursday: {% if ta_availability.thursday %}Available{% else %}Not Available{% endif %}</li>
+            <li>Friday: {% if ta_availability.friday %}Available{% else %}Not Available{% endif %}</li>
+        </ul>
         {% else %}
             <p>No availability set yet.</p>
         {% endif %}

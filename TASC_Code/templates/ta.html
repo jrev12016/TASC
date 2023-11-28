@@ -18,26 +18,12 @@
                 </ul>
             {% endif %}
         {% endwith %}
+        
         <h3>Add Class</h3>
         <form method="POST">
-            {{ form.hidden_tag() }}
+            {{ add_class_form.hidden_tag() }}
             <div>
-                {{ form.classname.label }}: {{ form.classname() }}
-            </div>
-            <div>
-                {{ form.monday.label }}: {{ form.monday() }}
-            </div>
-            <div>
-                {{ form.tuesday.label }}: {{ form.tuesday() }}
-            </div>
-            <div>
-                {{ form.wednesday.label }}: {{ form.wednesday() }}
-            </div>
-            <div>
-                {{ form.thursday.label }}: {{ form.thursday() }}
-            </div>
-            <div>
-                {{ form.friday.label }}: {{ form.friday() }}
+                {{ add_class_form.classname.label }}: {{ add_class_form.classname() }}
             </div>
             <button type="submit">Add Class</button>
         </form>
@@ -53,15 +39,36 @@
             <p>No classes enrolled yet.</p>
         {% endif %}
 
+        <h3>Update Availability</h3>
+        <form method="POST">
+            {{ update_availability_form.hidden_tag() }}
+            <div>
+                {{ update_availability_form.monday.label }}: {{ update_availability_form.monday() }}
+            </div>
+            <div>
+                {{ update_availability_form.tuesday.label }}: {{ update_availability_form.tuesday() }}
+            </div>
+            <div>
+                {{ update_availability_form.wednesday.label }}: {{ update_availability_form.wednesday() }}
+            </div>
+            <div>
+                {{ update_availability_form.thursday.label }}: {{ update_availability_form.thursday() }}
+            </div>
+            <div>
+                {{ update_availability_form.friday.label }}: {{ update_availability_form.friday() }}
+            </div>
+            <button type="submit">Update Availability</button>
+        </form>
+
         <h3>TA Availability</h3>
         {% if ta_availability %}
-        <ul>
-            <li>Monday: {% if ta_availability.monday %}Available{% else %}Not Available{% endif %}</li>
-            <li>Tuesday: {% if ta_availability.tuesday %}Available{% else %}Not Available{% endif %}</li>
-            <li>Wednesday: {% if ta_availability.wednesday %}Available{% else %}Not Available{% endif %}</li>
-            <li>Thursday: {% if ta_availability.thursday %}Available{% else %}Not Available{% endif %}</li>
-            <li>Friday: {% if ta_availability.friday %}Available{% else %}Not Available{% endif %}</li>
-        </ul>
+            <ul>
+                <li>Monday: {% if ta_availability.monday %}Available{% else %}Not Available{% endif %}</li>
+                <li>Tuesday: {% if ta_availability.tuesday %}Available{% else %}Not Available{% endif %}</li>
+                <li>Wednesday: {% if ta_availability.wednesday %}Available{% else %}Not Available{% endif %}</li>
+                <li>Thursday: {% if ta_availability.thursday %}Available{% else %}Not Available{% endif %}</li>
+                <li>Friday: {% if ta_availability.friday %}Available{% else %}Not Available{% endif %}</li>
+            </ul>
         {% else %}
             <p>No availability set yet.</p>
         {% endif %}
@@ -72,5 +79,4 @@
     </div>
 </body>
 </html>
-
 
