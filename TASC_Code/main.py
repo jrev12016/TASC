@@ -54,16 +54,16 @@ class Appointment(db.Model):
 class TAAvailability(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    monday_start = db.Column(db.Time)
-    monday_end = db.Column(db.Time)
-    tuesday_start = db.Column(db.Time)
-    tuesday_end = db.Column(db.Time)
-    wednesday_start = db.Column(db.Time)
-    wednesday_end = db.Column(db.Time)
-    thursday_start = db.Column(db.Time)
-    thursday_end = db.Column(db.Time)
-    friday_start = db.Column(db.Time)
-    friday_end = db.Column(db.Time)
+    monday_start = db.Column(db.String(10))
+    monday_end = db.Column(db.String(10))
+    tuesday_start = db.Column(db.String(10))
+    tuesday_end = db.Column(db.String(10))
+    wednesday_start = db.Column(db.String(10))
+    wednesday_end = db.Column(db.String(10))
+    thursday_start = db.Column(db.String(10))
+    thursday_end = db.Column(db.String(10))
+    friday_start = db.Column(db.String(10))
+    friday_end = db.Column(db.String(10))
 
 # We may need to add a FlaskForm to collect the message data and store it from the webpage, similar to signup page/user db
 class Message(db.Model):
@@ -105,11 +105,32 @@ class AddClassForm(FlaskForm):
 
 # Form to let TAs submit their availability
 class UpdateAvailabilityForm(FlaskForm):
-    monday_availability = SelectField('Monday Availability', choices=[], default='not_available')
-    tuesday_availability = SelectField('Tuesday Availability', choices=[], default='not_available')
-    wednesday_availability = SelectField('Wednesday Availability', choices=[], default='not_available')
-    thursday_availability = SelectField('Thursday Availability', choices=[], default='not_available')
-    friday_availability = SelectField('Friday Availability', choices=[], default='not_available')
+    available_times = [
+        '08:00am', '08:30am', '09:00am', '09:30am', '10:00am',
+        '10:30am', '11:00am', '11:30am', '12:00pm', '12:30pm',
+        '01:00pm', '01:30pm', '02:00pm', '02:30pm', '03:00pm',
+        '03:30pm', '04:00pm', '04:30pm', '05:00pm'
+    ]
+
+    # Add "Not Available" option
+    choices = [(time, time) for time in available_times]
+    choices.append(('not_available', 'Not Available'))
+
+    monday_start = SelectField('Monday Start Time', choices=choices, default='not_available')
+    monday_end = SelectField('Monday End Time', choices=choices, default='not_available')
+
+    tuesday_start = SelectField('Tuesday Start Time', choices=choices, default='not_available')
+    tuesday_end = SelectField('Tuesday End Time', choices=choices, default='not_available')
+
+    wednesday_start = SelectField('Wednesday Start Time', choices=choices, default='not_available')
+    wednesday_end = SelectField('Wednesday End Time', choices=choices, default='not_available')
+
+    thursday_start = SelectField('Thursday Start Time', choices=choices, default='not_available')
+    thursday_end = SelectField('Thursday End Time', choices=choices, default='not_available')
+
+    friday_start = SelectField('Friday Start Time', choices=choices, default='not_available')
+    friday_end = SelectField('Friday End Time', choices=choices, default='not_available')
+
     submit = SubmitField('Update Availability')
 
 # Default page changed from home to signup
@@ -243,19 +264,6 @@ def ta():
     add_class_form = AddClassForm()
     update_availability_form = UpdateAvailabilityForm()
 
-    available_times = [
-    '08:00', '08:30', '09:00', '09:30', '10:00',
-    '10:30', '11:00', '11:30', '12:00', '12:30',
-    '13:00', '13:30', '14:00', '14:30', '15:00',
-    '15:30', '16:00', '16:30', '17:00'
-    ]
-    # Add "Not Available" option
-    available_times.append(('not_available', 'Not Available'))
-
-    # set choices for each day in the form
-    for day in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']:
-        setattr(update_availability_form, f"{day}_availability", SelectField(f"{day.capitalize()} Availability", choices=available_times, default='not_available'))
-
     ta_id = session['user_id']    
 
     # Retrieve TA availability outside the form validation block
@@ -285,15 +293,16 @@ def ta():
                 ta_availability = TAAvailability(ta_id=ta_id)
 
             for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
-                selected_time = getattr(update_availability_form, f"{day.lower()}_availability").data
-                if selected_time:
-                    if selected_time == 'not_available':
+                start_time = getattr(update_availability_form, f"{day.lower()}_start").data
+                end_time = getattr(update_availability_form, f"{day.lower()}_end").data
+                
+                if start_time and end_time:
+                    if start_time == 'not_available' or end_time == 'not_available':
                         setattr(ta_availability, f"{day.lower()}_start", None)
                         setattr(ta_availability, f"{day.lower()}_end", None)
                     else:
-                        start_time, end_time = map(str.strip, selected_time.split('-'))
-                        setattr(ta_availability, f"{day.lower()}_start", datetime.strptime(start_time, '%H:%M').time())
-                        setattr(ta_availability, f"{day.lower()}_end", datetime.strptime(end_time, '%H:%M').time())
+                        setattr(ta_availability, f"{day.lower()}_start", start_time)
+                        setattr(ta_availability, f"{day.lower()}_end", end_time)
                 else:
                     # Handle the case where no time is selected
                     setattr(ta_availability, f"{day.lower()}_start", None)

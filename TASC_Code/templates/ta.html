@@ -8,82 +8,102 @@
 </head>
 <body>
     <div class="container">
-    <div class="header">
-        <p>Welcome, {{ session['user_name'] }}!</p>
-    </div>
+        <div class="header">
+            <p>Welcome, {{ session['user_name'] }}!</p>
+        </div>
         <br>
-<div class="flex-container">
-    <div class="class_flashes">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class="flashes">
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-    </div>  
-    <div class="add_class">
-        <h3>Add Class</h3>
-        <form method="POST">
-            {{ add_class_form.hidden_tag() }}
-            <div>
-                {{ add_class_form.classname.label }}: {{ add_class_form.classname() }}
+        <div class="flex-container">
+            <div class="class_flashes">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <ul class="flashes">
+                            {% for message in messages %}
+                                <li>{{ message }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endwith %}
+            </div>  
+            <div class="add_class">
+                <h3>Add Class</h3>
+                <form method="POST">
+                    {{ add_class_form.hidden_tag() }}
+                    <div>
+                        {{ add_class_form.classname.label }}: {{ add_class_form.classname() }}
+                    </div>
+                    <button type="submit">Add Class</button>
+                </form>
+            </div> 
+            <div class="enrolled_classes">
+                <h3>Enrolled Classes</h3>
+                {% if enrolled_classes %}
+                    <ul>
+                        {% for enrolled_class in enrolled_classes %}
+                            <li>{{ enrolled_class.classname }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No classes enrolled yet.</p>
+                {% endif %}
             </div>
-            <button type="submit">Add Class</button>
-        </form>
-    </div> 
-    <div class="enrolled_classes">
-        <h3>Enrolled Classes</h3>
-        {% if enrolled_classes %}
-            <ul>
-                {% for enrolled_class in enrolled_classes %}
-                    <li>{{ enrolled_class.classname }}</li>
-                {% endfor %}
-            </ul>
-        {% else %}
-            <p>No classes enrolled yet.</p>
-        {% endif %}
-    </div>
-</div>
-    <div class="update_availability">
-        <h3>Update Availability</h3>
-        <form method="POST" action="{{ url_for('ta') }}">
-            {{ update_availability_form.hidden_tag() }}
-            {% for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'] -%}
+        </div>
+        <div class="update_availability">
+            <h3>Update Availability</h3>
+            <form method="POST" action="{{ url_for('ta') }}">
+                {{ update_availability_form.hidden_tag() }}
                 <div>
-                    {{ day }}: Debug Point 1
-                    {{ update_availability_form[day.lower() + '_availability'].label }}: Debug Point 2
-                    {{ update_availability_form[day.lower() + '_availability'](choices=[('not_available', 'Not Available')] + [(time, time) for time in available_times]) }}: Debug Point 3
-                    {% if update_availability_form[day.lower() + '_availability'].errors -%}
-                        {{ update_availability_form[day.lower() + '_availability'].errors[0] }}: Debug Point 4
-                    {% endif -%}
+                    <label>Monday Start:</label>
+                    {{ update_availability_form.monday_start }}
+                    <label>Monday End:</label>
+                    {{ update_availability_form.monday_end }}
                 </div>
-            {%- endfor %}
-            <button type="submit">Update Availability</button>
-        </form>
+                <div>
+                    <label>Tuesday Start:</label>
+                    {{ update_availability_form.tuesday_start }}
+                    <label>Tuesday End:</label>
+                    {{ update_availability_form.tuesday_end }}
+                </div>
+                <div>
+                    <label>Wednesday Start:</label>
+                    {{ update_availability_form.wednesday_start }}
+                    <label>Wednesday End:</label>
+                    {{ update_availability_form.wednesday_end }}
+                </div>
+                <div>
+                    <label>Thursday Start:</label>
+                    {{ update_availability_form.thursday_start }}
+                    <label>Thursday End:</label>
+                    {{ update_availability_form.thursday_end }}
+                </div>
+                <div>
+                    <label>Friday Start:</label>
+                    {{ update_availability_form.friday_start }}
+                    <label>Friday End:</label>
+                    {{ update_availability_form.friday_end }}
+                </div>
+                {{ update_availability_form.submit }}
+            </form>
+        </div>
+        <div class="ta_availability">
+            <h3>TA Availability</h3>
+            {% if ta_availability %}
+                <ul>
+                    <li>Monday: {% if ta_availability.monday_start and ta_availability.monday_end %}{{ ta_availability.monday_start }} - {{ ta_availability.monday_end }}{% else %}Not Available{% endif %}</li>
+                    <li>Tuesday: {% if ta_availability.tuesday_start and ta_availability.tuesday_end %}{{ ta_availability.tuesday_start }} - {{ ta_availability.tuesday_end }}{% else %}Not Available{% endif %}</li>
+                    <li>Wednesday: {% if ta_availability.wednesday_start and ta_availability.wednesday_end %}{{ ta_availability.wednesday_start }} - {{ ta_availability.wednesday_end }}{% else %}Not Available{% endif %}</li>
+                    <li>Thursday: {% if ta_availability.thursday_start and ta_availability.thursday_end %}{{ ta_availability.thursday_start }} - {{ ta_availability.thursday_end }}{% else %}Not Available{% endif %}</li>
+                    <li>Friday: {% if ta_availability.friday_start and ta_availability.friday_end %}{{ ta_availability.friday_start }} - {{ ta_availability.friday_end }}{% else %}Not Available{% endif %}</li>
+                </ul>
+            {% else %}
+                <p>No availability set yet.</p>
+            {% endif %}
+        </div>
+        <div class="logout">
+            <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
+                <button type="submit" class="btn btn-primary" value="Logout">Logout</button>
+            </form>
+        </div>
     </div>
-    <div class="ta_availability">
-        <h3>TA Availability</h3>
-        {% if ta_availability %}
-            <ul>
-                <li>Monday: {% if ta_availability.monday_start and ta_availability.monday_end %}{{ ta_availability.monday_start.strftime('%H:%M') }} - {{ ta_availability.monday_end.strftime('%H:%M') }}{% else %}Not Available{% endif %}</li>
-                <li>Tuesday: {% if ta_availability.tuesday_start and ta_availability.tuesday_end %}{{ ta_availability.tuesday_start.strftime('%H:%M') }} - {{ ta_availability.tuesday_end.strftime('%H:%M') }}{% else %}Not Available{% endif %}</li>
-                <li>Wednesday: {% if ta_availability.wednesday_start and ta_availability.wednesday_end %}{{ ta_availability.wednesday_start.strftime('%H:%M') }} - {{ ta_availability.wednesday_end.strftime('%H:%M') }}{% else %}Not Available{% endif %}</li>
-                <li>Thursday: {% if ta_availability.thursday_start and ta_availability.thursday_end %}{{ ta_availability.thursday_start.strftime('%H:%M') }} - {{ ta_availability.thursday_end.strftime('%H:%M') }}{% else %}Not Available{% endif %}</li>
-                <li>Friday: {% if ta_availability.friday_start and ta_availability.friday_end %}{{ ta_availability.friday_start.strftime('%H:%M') }} - {{ ta_availability.friday_end.strftime('%H:%M') }}{% else %}Not Available{% endif %}</li>
-            </ul>
-        {% else %}
-            <p>No availability set yet.</p>
-        {% endif %}
-    </div>
-    <div class="logout">
-        <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
-            <button type="submit" class="btn btn-primary" value="Logout">Logout</button>
-        </form>
-    </div>
-    </div>
-</body>
+</body
 </html>
 
