@@ -8,6 +8,7 @@ from flask import request
 from wtforms import StringField, SubmitField, validators
 from datetime import datetime
 from wtforms.fields import HiddenField
+from flask import jsonify
 
 app = Flask (__name__)
 
@@ -93,9 +94,12 @@ class LoginForm(FlaskForm):
 
 
 # Form to let student scehdule an appointment
-class MakeAppt(FlaskForm):
-    TA = SelectField('Please select your TA:', coerce=int, validators=[DataRequired()])
-    day = SelectField('Please select the appointment day:', choices=[('Monday','Monday'),('Tuesday','Tuesday'),('Wednesday','Wednesday'),('Thursday','Thursday'),('Friday','Friday')], validators=[DataRequired()])
+class StudentAppointmentForm(FlaskForm):
+    class_choice = SelectField('Select Class', choices = [], validators=[DataRequired()])
+    ta_choice = SelectField('Select TA:', choices = [], validators=[DataRequired()])
+    day_choice = SelectField('Select Day', choices=[], validators=[DataRequired()])
+    time_choice = SelectField('Select Time', choices=[], validators=[DataRequired()])
+    question = TextAreaField('Optional Question to Send')
     submit = SubmitField('Submit')
 
 # Form to let TAs submit/create a class
@@ -228,36 +232,38 @@ def login():
 
 @app.route('/student', methods=['GET', 'POST'])
 def student():
+    # Check if the user is logged in; if not, redirect to login page
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
 
-    TAs = User.query.filter_by(user_type='TA').all()
-    TA_choices = [(ta.id, ta.display_name) for ta in TAs]
+    # Get user information
+    user_id = User.query.get(session['user_id']).id
+    user_name = User.query.get(session['user_id']).user_name
+    user_type = User.query.get(session['user_id']).user_type
+    display_name = User.query.get(session['user_id']).display_name
 
-    # Form to schedule an appointment
-    form = MakeAppt()
-    form.TA.choices = TA_choices
+    # Create an instance of the StudentAppointmentForm
+    form = StudentAppointmentForm()
+
+    # Get a list of unique classes from the database
+    available_classes = Class.query.distinct(Class.classname).all()
+    class_names = list(set(course.classname for course in available_classes))
+
     if form.validate_on_submit():
-        TA = form.TA.data
-        day = form.day.data
-        list = []
-        list.append((('9:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().nine)))
-        list.append((('10:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().ten)))
-        list.append((('11:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().eleven)))
-        list.append((('12:00 a.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().twelve)))
-        list.append((('1:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().one)))
-        list.append((('2:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().two)))
-        list.append((('3:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().three)))
-        list.append((('4:00 p.m.', Appointment.query.filter_by(TA_id=TA, day=day).first().four)))
-        
-        # Only display available times
-        list_available = []
-        for times in list:
-            time, conditional = times
-            if conditional:
-                list_available.append(time)
-            
-        return render_template('student.html', TA=TA, day=day, list_available=list_available)
+        # If the form is submitted, get the selected class and fetch TAs
+        selected_class = form.class_choice.data
+        #tas_response = get_tas(selected_class)
 
-    return render_template('student.html', form=form)
+        # Render the student page with class names, selected class, and TAs
+        return render_template('student.html', user_id=user_id, user_name=user_name, user_type=user_type,
+                                display_name=display_name, form=form, tas_response=None, class_names=class_names)
+
+    # Render the student page with unique class names and the form
+    return render_template('student.html', user_id=user_id, user_name=user_name, user_type=user_type,
+                            display_name=display_name, class_names=class_names, form=form, tas_response=None)
+    
+
+    
 
 @app.route('/ta', methods=['GET', 'POST'])
 def ta():
@@ -331,6 +337,27 @@ def logout():
 
     session.clear()
     return redirect(url_for('login'))
+
+@app.route('/get_tas', methods=['POST'])
+def get_tas():
+    selected_class = request.form.get('class_name')
+
+    # Query your database to get the ta_id for the selected class
+    selected_class_obj = Class.query.filter_by(classname=selected_class).first()
+
+    if selected_class_obj:
+        ta_id_for_class = selected_class_obj.ta_id
+
+        # Query the User table to get the name of the TA based on ta_id
+        ta_for_class = User.query.filter_by(id=ta_id_for_class).first()
+
+        if ta_for_class:
+            return jsonify({'TAs': [ta_for_class.user_name]})
+        else:
+            return jsonify({'error': 'TA not found'}), 404
+    else:
+        # Handle the case where the class is not found
+        return jsonify({'error': 'Class not found'}), 404
 
 if __name__ == '__main__':
     with app.app_context():
