@@ -21,7 +21,7 @@
     {% endwith %}
 
     <!-- Form to let students schedule an appointment -->
-    <form method="POST" action="{{ url_for('get_tas') }}" id="classForm">
+    <form method="POST" action=""">
         <!-- Select Class -->
         <label for="class_choice">Select Class:</label>
         <select id="class_choice" name="class_choice">
@@ -30,20 +30,19 @@
                 <option value="{{ class_name }}">{{ class_name }}</option>
             {% endfor %}
         </select>
-    
         <!-- Submit button to trigger form submission -->
-        <button type="submit" onclick="getTAs()">Submit</button>
+        <button type="submit">Submit</button>
     </form>
 
         <!-- Select TA -->
+        {% if tas_response %}
         <label for="ta_choice">Select TA:</label>
         <select id="ta_choice" name="ta_choice">
-            {% if tas_response %}
-                {% for ta in tas_response.TAs %}
-                    <option value="{{ ta }}">{{ ta }}</option>
-                {% endfor %}
-            {% endif %}
+            {% for ta in tas_response %}
+                <option value="{{ ta }}">{{ ta }}</option>
+            {% endfor %}
         </select>
+        {% endif %}
 
         <!-- Select Day -->
         <label for="day_choice">Select Day:</label>
@@ -71,53 +70,5 @@
         <!-- Submit Button -->
         <input type="submit" value="Submit">
     </form>
-
-    <!-- Include any necessary scripts, such as the script to fetch TAs based on selected class -->
-    <script>
-        function getTAs() {
-            console.log('function getTAs() triggered');
-        // Your JavaScript logic to fetch TAs based on the selected class and populate the TA dropdown
-        // Example: use fetch or AJAX to call the get_tas route and update the ta_choice dropdown
-        var selectedClass = document.getElementById("class_choice").value;
-        var taDropdown = document.getElementById("ta_choice");
-
-        console.log(selectedClass);
-
-        // Ensure selectedClass is not empty
-        if (selectedClass) {
-            // Use fetch to make a POST request to the get_tas route
-            fetch('/get_tas', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ class_name: selectedClass })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                // Ensure data.TAs is an array before iterating
-                if (data && data.TAs && Array.isArray(data.TAs)) {
-                    data.TAs.forEach(function(ta) {
-                        // update the TA dropdown
-                        var option = document.createElement("option");
-                        option.value = ta;
-                        option.text = ta;
-                        taDropdown.appendChild(option);
-                    });
-                } else {
-                    console.error('Invalid response format:', data);
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching TAs:', error);
-            });
-        }
-    }
-    </script>
 </body>
 </html>
