@@ -59,6 +59,7 @@ class Scheduled_Appointments(db.Model):
     ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     appointment_start_time = db.Column(db.String(20), nullable=False)
+    message = db.Column(db.String(200), nullable=True)
 
 class TAAvailability(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -432,9 +433,6 @@ def timesplit(time_slot):
         result.append([time_slot])
 
     return result
-
-
-
 
 
 @app.route('/test_route', methods=['POST'])
