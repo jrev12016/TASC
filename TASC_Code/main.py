@@ -308,6 +308,14 @@ def ta():
             if ta_availability is None:
                 ta_availability = TAAvailability(ta_id=ta_id)
 
+           # Make a list of times
+            available_times = [
+                '08:00am', '08:30am', '09:00am', '09:30am', '10:00am',
+                '10:30am', '11:00am', '11:30am', '12:00pm', '12:30pm',
+                '01:00pm', '01:30pm', '02:00pm', '02:30pm', '03:00pm',
+                '03:30pm', '04:00pm', '04:30pm', '05:00pm'
+            ]
+            
             for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
                 start_time = getattr(update_availability_form, f"{day.lower()}_start").data
                 end_time = getattr(update_availability_form, f"{day.lower()}_end").data
@@ -317,8 +325,14 @@ def ta():
                         setattr(ta_availability, f"{day.lower()}_start", None)
                         setattr(ta_availability, f"{day.lower()}_end", None)
                     else:
-                        setattr(ta_availability, f"{day.lower()}_start", start_time)
-                        setattr(ta_availability, f"{day.lower()}_end", end_time)
+                        # finds the index of the start and end times within available_times
+                        start_time_index = available_times.index(start_time)
+                        end_time_index = available_times.index(end_time)
+                        
+                        # Sets start time and end time for TA availability
+                        if start_time_index < end_time_index:
+                            setattr(ta_availability, f"{day.lower()}_start", start_time)
+                            setattr(ta_availability, f"{day.lower()}_end", end_time)
                 else:
                     # Handle the case where no time is selected
                     setattr(ta_availability, f"{day.lower()}_start", None)
