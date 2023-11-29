@@ -364,24 +364,25 @@ def logout():
 
 
 def get_tas(selected_class):
+    ta_names = []
+
     # Query database to get the TA names for the selected class
+    # this is a list[] of ta_ids [(1,) , (2,)]
     ta_ids_for_class = Class.query.filter_by(classname=selected_class).with_entities(Class.ta_id).all()
 
     if ta_ids_for_class:
-        ta_ids = []
-        
-        for i in ta_ids_for_class:
-            ta_ids.append(i)
-        
-        return ta_ids
-    
+        for ta_id_tuple in ta_ids_for_class:
+            ta_id = ta_id_tuple[0] # Extract the TA id from the tuple
+            ta_name = User.query.filter_by(id=ta_id).first().display_name # query the name from User table using ta_id
+
+            if ta_name:
+                ta_names.append(ta_name)
+            else:
+                ta_names.append("No TA found")
+                   
+        return ta_names
     else:
-        return ['ta_ids not found']
-
-    
-
-
-
+        return ['GET TAS ERROR']
 
 @app.route('/test_route', methods=['POST'])
 def test_route():
