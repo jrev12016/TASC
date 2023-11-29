@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="/static/main.css">
         <title>Signup Page</title>
     </head>
     <body>
@@ -12,7 +13,7 @@
         <div class="container">
             <h1>Signup Page</h1>
                 {% if form %}
-                    <p>Please signup below</p>
+                    <p>Create an account</p>
                     <form method = "post" >
                         {{form.hidden_tag()}}
                         {{form.user_type.label}} {{form.user_type}}
@@ -33,7 +34,6 @@
                     <p>Welcome!</p>
                     <a href="/login">Back to Login</a>
                 {% endif %}
-            </div>
         </div>
     </body>
 </html>
