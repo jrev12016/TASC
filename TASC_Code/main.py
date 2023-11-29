@@ -82,15 +82,15 @@ def get_time_intervals():
 
 class SignupForm(FlaskForm):
     user_type = SelectField('Please select user type:', choices=[('Admin', 'Admin'), ('TA', 'TA'), ('Student', 'Student')], validators=[DataRequired()])
-    user_name = StringField('Please enter your username:', validators=[DataRequired()])
-    password = StringField('Please enter your password:', validators=[DataRequired()])
-    confirm_password = StringField('Please confirm your password:', validators=[DataRequired()])
+    user_name = StringField('Username:', validators=[DataRequired()])
+    password = StringField('Password:', validators=[DataRequired()])
+    confirm_password = StringField('Confirm your password:', validators=[DataRequired()])
     display_name = StringField('Please enter your first and last names:', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 class LoginForm(FlaskForm):
-    user_name = StringField('Please enter your username:', validators=[DataRequired()])
-    password = StringField('Please enter your password:', validators=[DataRequired()])
+    user_name = StringField('Username:', validators=[DataRequired()])
+    password = StringField('Password:', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
