@@ -238,7 +238,7 @@ def student():
         return redirect(url_for('login'))
 
     # Get user information
-    user_id = User.query.get(session['user_id']).id
+    user_id = session['user_id']
     user_name = User.query.get(session['user_id']).user_name
     user_type = User.query.get(session['user_id']).user_type
     display_name = User.query.get(session['user_id']).display_name
@@ -253,14 +253,16 @@ def student():
     if form.validate_on_submit():
         # If the form is submitted, get the selected class and fetch TAs
         selected_class = form.class_choice.data
-        #tas_response = get_tas(selected_class)
+        ta_ids = Class.query.filter_by(classname=selected_class).with_entities(Class.ta_id).all()
+        usernames = User.query.filter(User.id.in_([ta_id[0] for ta_id in ta_ids])).with_entities(User.user_name).all()
+        # Use the usernames here...
 
         # Render the student page with class names, selected class, and TAs
-        return render_template('student.html', user_id=user_id, user_name=user_name, user_type=user_type,
-                                display_name=display_name, form=form, tas_response=None, class_names=class_names)
+        return render_template('student.html', user_name=user_name, user_type=user_type,
+                                display_name=display_name, form=form, class_names=class_names)
 
     # Render the student page with unique class names and the form
-    return render_template('student.html', user_id=user_id, user_name=user_name, user_type=user_type,
+    return render_template('student.html', user_name=user_name, user_type=user_type,
                             display_name=display_name, class_names=class_names, form=form, tas_response=None)
     
 

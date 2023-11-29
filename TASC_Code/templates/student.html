@@ -21,22 +21,28 @@
     {% endwith %}
 
     <!-- Form to let students schedule an appointment -->
-    <form method="POST" action="{{ url_for('student') }}">
-        {{ form.csrf_token }}
-        
+    <form method="POST" action="{{ url_for('get_tas') }}" id="classForm">
         <!-- Select Class -->
         <label for="class_choice">Select Class:</label>
-        <select id="class_choice" name="class_choice" onchange="getTAs()">
+        <select id="class_choice" name="class_choice">
             <option value="" disabled selected>Select Class</option>
             {% for class_name in class_names %}
                 <option value="{{ class_name }}">{{ class_name }}</option>
             {% endfor %}
         </select>
-        
+    
+        <!-- Submit button to trigger form submission -->
+        <button type="submit" onclick="getTAs()">Submit</button>
+    </form>
+
         <!-- Select TA -->
         <label for="ta_choice">Select TA:</label>
         <select id="ta_choice" name="ta_choice">
-            <!-- Options will be populated dynamically using JavaScript -->
+            {% if tas_response %}
+                {% for ta in tas_response.TAs %}
+                    <option value="{{ ta }}">{{ ta }}</option>
+                {% endfor %}
+            {% endif %}
         </select>
 
         <!-- Select Day -->
