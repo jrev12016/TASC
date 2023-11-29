@@ -234,10 +234,6 @@ def login():
 @app.route('/student', methods=['GET', 'POST'])
 def student():
 
-    '''
-    ta_ids = Class.query.filter_by(classname=selected_class).with_entities(Class.ta_id).all()
-    usernames = User.query.filter(User.id.in_([ta_id[0] for ta_id in ta_ids])).with_entities(User.user_name).all()
-    '''
     # Check if the user is logged in; if not, redirect to login page
     if 'user_id' not in session:
         return redirect(url_for('login'))
@@ -256,15 +252,25 @@ def student():
     class_names = list(set(course.classname for course in available_classes))
 
     tas_response = []
+    time_response =[]
 
     if request.method == 'POST':
-        # If the form is submitted, get the selected class and fetch TAs
-        selected_class = request.form.get('class_choice')
-        tas_response = get_tas(selected_class)
+        if 'submit_class' in request.form:
+            # get the selected class and fetch TAs
+            selected_class = request.form.get('class_choice')
+            tas_response = get_tas(selected_class)
+        elif 'submit_ta_day' in request.form:
+            selected_ta = request.form.get('ta_choice')
+            selected_day = request.form.get('day_choice')
+            time_response = get_availability(selected_ta, selected_day)
+
+
+        
+
 
     # Render the student page with class names, selected class, and TAs
     return render_template('student.html', user_name=user_name, user_type=user_type,
-                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response)
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response)
 
     # Render the student page with unique class names and the form
     '''
@@ -272,9 +278,6 @@ def student():
                             display_name=display_name, class_names=class_names, form=form, tas_response=None)
     '''
     
-
-    
-
 @app.route('/ta', methods=['GET', 'POST'])
 def ta():
     add_class_form = AddClassForm()
@@ -383,6 +386,49 @@ def get_tas(selected_class):
         return ta_names
     else:
         return ['GET TAS ERROR']
+
+
+def get_availability(selected_ta, selected_day):
+    selected_ta_id = User.query.filter_by(display_name = selected_ta).first().id
+    day_start = (selected_day + "_start").lower()
+    day_end = (selected_day + "_end").lower()
+
+    # query db to get availability using selected_ta as the basis. we need to get ta_id
+    start_time = TAAvailability.query.filter_by(ta_id=selected_ta_id).with_entities(getattr(TAAvailability, day_start)).first()
+    end_time = TAAvailability.query.filter_by(ta_id=selected_ta_id).with_entities(getattr(TAAvailability, day_end)).first()
+
+    timeslots = timesplit([start_time[0], end_time[0]])
+
+    return timeslots
+
+
+def timesplit(time_slot):
+    # time slot is a list of [start_time, end_time]
+    available_times = [
+        '08:00am', '08:30am', '09:00am', '09:30am', '10:00am',
+        '10:30am', '11:00am', '11:30am', '12:00pm', '12:30pm',
+        '01:00pm', '01:30pm', '02:00pm', '02:30pm', '03:00pm',
+        '03:30pm', '04:00pm', '04:30pm', '05:00pm'
+    ]
+    current_time = time_slot[0] # start time
+    end_time = time_slot[1] # end time
+
+    start_index = available_times.index(current_time)
+    end_index = available_times.index(end_time)
+
+    result = []
+
+    for i in range(start_index, end_index):
+        slot_start_time = available_times[i]
+        slot_end_time = available_times[i + 1]
+        time_slot = f"{slot_start_time} - {slot_end_time}"
+        result.append([time_slot])
+
+    return result
+
+
+
+
 
 @app.route('/test_route', methods=['POST'])
 def test_route():
