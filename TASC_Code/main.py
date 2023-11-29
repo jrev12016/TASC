@@ -82,15 +82,15 @@ def get_time_intervals():
 
 class SignupForm(FlaskForm):
     user_type = SelectField('Please select user type:', choices=[('Admin', 'Admin'), ('TA', 'TA'), ('Student', 'Student')], validators=[DataRequired()])
-    user_name = StringField('Please enter your username:', validators=[DataRequired()])
-    password = StringField('Please enter your password:', validators=[DataRequired()])
-    confirm_password = StringField('Please confirm your password:', validators=[DataRequired()])
-    display_name = StringField('Please enter your first and last names:', validators=[DataRequired()])
+    user_name = StringField('Username:', validators=[DataRequired()])
+    password = StringField('Password:', validators=[DataRequired()])
+    confirm_password = StringField('Confirm your password:', validators=[DataRequired()])
+    display_name = StringField('Full Name:', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 class LoginForm(FlaskForm):
-    user_name = StringField('Please enter your username:', validators=[DataRequired()])
-    password = StringField('Please enter your password:', validators=[DataRequired()])
+    user_name = StringField('Username:', validators=[DataRequired()])
+    password = StringField('Password:', validators=[DataRequired()])
     submit = SubmitField('Submit')
 
 
@@ -233,16 +233,21 @@ def login():
 
 @app.route('/student', methods=['GET', 'POST'])
 def student():
+
+    '''
+    ta_ids = Class.query.filter_by(classname=selected_class).with_entities(Class.ta_id).all()
+    usernames = User.query.filter(User.id.in_([ta_id[0] for ta_id in ta_ids])).with_entities(User.user_name).all()
+    '''
     # Check if the user is logged in; if not, redirect to login page
     if 'user_id' not in session:
         return redirect(url_for('login'))
 
     # Get user information
-    user_id = User.query.get(session['user_id']).id
+    user_id = session['user_id']
     user_name = User.query.get(session['user_id']).user_name
     user_type = User.query.get(session['user_id']).user_type
     display_name = User.query.get(session['user_id']).display_name
-
+    
     # Create an instance of the StudentAppointmentForm
     form = StudentAppointmentForm()
 
@@ -250,18 +255,22 @@ def student():
     available_classes = Class.query.distinct(Class.classname).all()
     class_names = list(set(course.classname for course in available_classes))
 
-    if form.validate_on_submit():
-        # If the form is submitted, get the selected class and fetch TAs
-        selected_class = form.class_choice.data
-        #tas_response = get_tas(selected_class)
+    tas_response = []
 
-        # Render the student page with class names, selected class, and TAs
-        return render_template('student.html', user_id=user_id, user_name=user_name, user_type=user_type,
-                                display_name=display_name, form=form, tas_response=None, class_names=class_names)
+    if request.method == 'POST':
+        # If the form is submitted, get the selected class and fetch TAs
+        selected_class = request.form.get('class_choice')
+        tas_response = get_tas(selected_class)
+
+    # Render the student page with class names, selected class, and TAs
+    return render_template('student.html', user_name=user_name, user_type=user_type,
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response)
 
     # Render the student page with unique class names and the form
-    return render_template('student.html', user_id=user_id, user_name=user_name, user_type=user_type,
+    '''
+    return render_template('student.html', user_name=user_name, user_type=user_type,
                             display_name=display_name, class_names=class_names, form=form, tas_response=None)
+    '''
     
 
     
@@ -299,6 +308,14 @@ def ta():
             if ta_availability is None:
                 ta_availability = TAAvailability(ta_id=ta_id)
 
+           # Make a list of times
+            available_times = [
+                '08:00am', '08:30am', '09:00am', '09:30am', '10:00am',
+                '10:30am', '11:00am', '11:30am', '12:00pm', '12:30pm',
+                '01:00pm', '01:30pm', '02:00pm', '02:30pm', '03:00pm',
+                '03:30pm', '04:00pm', '04:30pm', '05:00pm'
+            ]
+            
             for day in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:
                 start_time = getattr(update_availability_form, f"{day.lower()}_start").data
                 end_time = getattr(update_availability_form, f"{day.lower()}_end").data
@@ -308,8 +325,14 @@ def ta():
                         setattr(ta_availability, f"{day.lower()}_start", None)
                         setattr(ta_availability, f"{day.lower()}_end", None)
                     else:
-                        setattr(ta_availability, f"{day.lower()}_start", start_time)
-                        setattr(ta_availability, f"{day.lower()}_end", end_time)
+                        # finds the index of the start and end times within available_times
+                        start_time_index = available_times.index(start_time)
+                        end_time_index = available_times.index(end_time)
+                        
+                        # Sets start time and end time for TA availability
+                        if start_time_index < end_time_index:
+                            setattr(ta_availability, f"{day.lower()}_start", start_time)
+                            setattr(ta_availability, f"{day.lower()}_end", end_time)
                 else:
                     # Handle the case where no time is selected
                     setattr(ta_availability, f"{day.lower()}_start", None)
@@ -340,33 +363,26 @@ def logout():
     return redirect(url_for('login'))
 
 
-@app.route('/get_tas', methods=['POST'])
-def get_tas():
-    try:
-        selected_class = request.form.get('class_name')
+def get_tas(selected_class):
+    # Query database to get the TA names for the selected class
+    ta_ids_for_class = Class.query.filter_by(classname=selected_class).with_entities(Class.ta_id).all()
 
-        # Query your database to get the ta_id for the selected class
-        selected_class_obj = Class.query.filter_by(classname=selected_class).first()
-
-        if selected_class_obj:
-            ta_id_for_class = selected_class_obj.ta_id
-
-            # Query the User table to get the name of the TA based on ta_id
-            ta_for_class = User.query.filter_by(id=ta_id_for_class).first()
-
-            if ta_for_class:
-                current_app.logger.info(f"Successfully retrieved TA for class: {ta_for_class.user_name}")
-                return jsonify({'TAs': [ta_for_class.user_name]})
-            else:
-                current_app.logger.error("TA not found")
-                return jsonify({'error': 'TA not found'}), 404
-        else:
-            current_app.logger.error("Class not found")
-            return jsonify({'error': 'Class not found'}), 404
-    except Exception as e:
-        current_app.logger.error(f"An error occurred: {e}")
-        return jsonify({'error': 'An error occurred'}), 500
+    if ta_ids_for_class:
+        ta_ids = []
+        
+        for i in ta_ids_for_class:
+            ta_ids.append(i)
+        
+        return ta_ids
     
+    else:
+        return ['ta_ids not found']
+
+    
+
+
+
+
 @app.route('/test_route', methods=['POST'])
 def test_route():
     return jsonify({'message': 'Test route success!'})
