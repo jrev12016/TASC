@@ -1,3 +1,36 @@
+* {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+body {
+    background-color: #023020;
+    width: 100%;
+}
+
+.banner {
+    position: relative;
+    background-color: #FEF9F3;
+    text-align: center;
+    height: 13%;
+    width: 98.5%; /* fixes the left showing the background but not the right */
+    border: 2px solid #333;
+    box-sizing: border-box;
+    top: 10;
+    border-radius: 10px;
+    align-items: center;
+}
+
+.container {
+    background-color: #FEF9F3;
+    text-align: center;
+    height: 84%;
+    width: 98.5%; /* fixes the left showing the background but not the right */
+    border-radius: 10px;
+    position:relative;
+    bottom: 0;
+    align-items: center;
+}
+
 .header{
     display: flex;
     justify-content: center;
@@ -46,8 +79,6 @@
     margin-top: 10px;
 }
 
-
-
 .class_flashes .flashes li {
     background-color: #49bf5c;
     padding: 8px;
@@ -61,8 +92,21 @@
     justify-content: flex-end;
     align-items: center;
     height: 35vh;
+    padding-bottom: 10px;
+}
+
+.box {
+    flex: 1;
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid #ddd;
 }
 
 .logout button{
     margin-top: 10px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
 }

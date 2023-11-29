@@ -7,11 +7,12 @@
     <title>TA</title>
 </head>
 <body>
+    <div class="banner">
+        <h1>Welcome, {{ session['user_name'] }}!</h1>
+    </div>
+    
     <div class="container">
-        <div class="header">
-            <p>Welcome, {{ session['user_name'] }}!</p>
-        </div>
-        <br>
+        
         <div class="flex-container">
             <div class="class_flashes">
                 {% with messages = get_flashed_messages() %}
@@ -47,7 +48,7 @@
                 {% endif %}
             </div>
         </div>
-        <div class="update_availability">
+        <div class="box">
             <h3>Update Availability</h3>
             <form method="POST" action="{{ url_for('ta') }}">
                 {{ update_availability_form.hidden_tag() }}
@@ -81,10 +82,11 @@
                     <label>Friday End:</label>
                     {{ update_availability_form.friday_end }}
                 </div>
+                <br>
                 {{ update_availability_form.submit }}
             </form>
         </div>
-        <div class="ta_availability">
+        <div class="box">
             <h3>TA Availability</h3>
             {% if ta_availability %}
                 <ul>
@@ -104,6 +106,6 @@
             </form>
         </div>
     </div>
-</body
+</body>
 </html>
 

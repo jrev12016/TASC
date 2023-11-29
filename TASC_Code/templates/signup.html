@@ -10,8 +10,12 @@
         {% if error %}
             <p style="color: red;">{{ error }}</p>
         {% endif %}
-        <div class="container">
+
+        <div class="banner">
             <h1>Signup Page</h1>
+        </div>
+
+        <div class="container">
                 {% if form %}
                     <p>Create an account</p>
                     <form method = "post" >
@@ -29,6 +33,7 @@
                         {{form.submit}}                        
                     </form>
                     <a href="{{ url_for('login') }}">Have an account? Log in.</a>
+                    
                 {% else %}
                     <h1>Thank you for signing up!</h1>
                     <p>Your account has been created successfully.</p>

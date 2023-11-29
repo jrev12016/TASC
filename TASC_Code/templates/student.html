@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    <link rel="stylesheet" href="/static/student_style.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Page</title>
-    <!-- Include any necessary stylesheets or scripts here -->
 </head>
+
 <body>
-    <h1>Welcome, {{ session['user_name'] }} (Student)!</h1>
+    <div class="banner">
+        <h1>Welcome, {{ session['user_name'] }}!</h1>
+    </div>
+    
 
     <!-- Display any flash messages -->
     {% with messages = get_flashed_messages() %}
@@ -21,57 +26,76 @@
     {% endwith %}
 
     <!-- Form to let students schedule an appointment -->
-    <form method="POST" action=""">
-        <!-- Select Class -->
-        <label for="class_choice">Select Class:</label>
-        <select id="class_choice" name="class_choice">
-            <option value="" disabled selected>Select Class</option>
-            {% for class_name in class_names %}
-                <option value="{{ class_name }}">{{ class_name }}</option>
-            {% endfor %}
-        </select>
-        <!-- Submit button to trigger form submission -->
-        <button type="submit" name="submit_class">Submit</button>
-    </form>
-
-        <!-- Second Form: Select TA and Day -->
-    {% if tas_response %}
-    <form method="POST" action="">
-        <label for="ta_choice">Select TA:</label>
-        <select id="ta_choice" name="ta_choice">
-            {% for ta in tas_response %}
-            <option value="{{ ta }}">{{ ta }}</option>
-            {% endfor %}
-        </select>
+    <div class="container">
         
-        <label for="day_choice">Select Day:</label>
-        <select id="day_choice" name="day_choice">
-            <option value="Monday">Monday</option>
-            <option value="Tuesday">Tuesday</option>
-            <option value="Wednesday">Wednesday</option>
-            <option value="Thursday">Thursday</option>
-            <option value="Friday">Friday</option>
-        </select>
-        <button type="submit" name="submit_ta_day">Submit TA and Day</button>
-    </form>
-    {% endif %}
+        <br>
 
-        <!-- Select Time -->
-        <label for="time_choice">Select Time:</label>
-        <select id="time_choice" name="time_choice">
-            <!-- Include options for times -->
-            {% for t in time_response %}
-            <option value="{{ t }}">{{ t }}</option>
-            {% endfor %}
-            <!-- Add other time options dynamically if needed -->
-        </select>
+        <div class="box">
+            <form method="POST" action=""> <!--Removed three quotation marks that caused an error here - Bryce-->
+                <!-- Select Class -->
+                <label for="class_choice">Select Class:</label>
+                <select id="class_choice" name="class_choice">
+                    <option value="" disabled selected>Select Class</option>
+                    {% for class_name in class_names %}
+                        <option value="{{ class_name }}">{{ class_name }}</option>
+                    {% endfor %}
+                </select>
+                <!-- Submit button to trigger form submission -->
+                <button type="submit" name="submit_class">Submit</button>
+            </form>
+            
+            <br>
+            <!-- Second Form: Select TA and Day -->
+            {% if tas_response %}
+            <form method="POST" action="">
+                <label for="ta_choice">Select TA:</label>
+                <select id="ta_choice" name="ta_choice">
+                    {% for ta in tas_response %}
+                    <option value="{{ ta }}">{{ ta }}</option>
+                    {% endfor %}
+                </select>
+                
+                <label for="day_choice">Select Day:</label>
+                <select id="day_choice" name="day_choice">
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                </select>
+                <button type="submit" name="submit_ta_day">Submit TA and Day</button>
+            </form>
+            {% endif %}
+        </div>
 
-        <!-- Optional Question -->
-        <label for="question">Optional Question to Send:</label>
-        <textarea id="question" name="question" rows="4" cols="50"></textarea>
-
+        <div class="box">
+            <!-- Select Time -->
+            <label for="time_choice">Select Time:</label>
+            <select id="time_choice" name="time_choice">
+                <!-- Include options for times -->
+                {% for t in time_response %}
+                <option value="{{ t }}">{{ t }}</option>
+                {% endfor %}
+                <!-- Add other time options dynamically if needed -->
+            </select>
+        </div>
+        
+        <div class="box">
+            <!-- Optional Question -->
+            <label for="question">Optional Question to Send:</label>
+            <textarea id="question" name="question" rows="4" cols="50"></textarea>
+        </div>
+        
         <!-- Submit Button -->
         <input type="submit" value="Submit">
-    </form>
+        </form>                                             <!--FROM BRYCE: What form is this attached to?-->
+    
+        <div class="logout">
+            <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
+                <button type="submit" class="btn btn-primary" value="Logout">Logout</button>
+            </form>
+        </div>
+    
+    </div>
 </body>
 </html>
