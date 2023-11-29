@@ -53,6 +53,13 @@ class Appointment(db.Model):
     three = db.Column(db.Boolean, nullable=False)
     four = db.Column(db.Boolean, nullable=False)
 
+
+class Scheduled_Appointments(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    appointment_start_time = db.Column(db.String(20), nullable=False)
+
 class TAAvailability(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
