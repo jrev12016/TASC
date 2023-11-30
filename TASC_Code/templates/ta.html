@@ -100,7 +100,7 @@
                 <p>No availability set yet.</p>
             {% endif %}
         </div>
-        <!-- Display Upcoming Appointments -->
+        <!-- Display Upcoming Appointments
         <div class="box">
             <h2>Upcoming Appointments</h2>
             <ul>
@@ -117,6 +117,33 @@
                     <p>No upcoming appointments</p>
                 {% endfor %}
             </ul>
+        </div> -->
+
+        <div class="box">
+            <h2>Upcoming Appointments</h2>
+            {% if upcoming_appointments %}
+                <table>
+                    <tr>
+                        <th>Student Name </th>
+                        <th>Class </th>
+                        <th>Day </th>
+                        <th>Time </th>
+                        <th>Message </th>
+                    </tr>
+                    
+                    {% for appointment in upcoming_appointments %}
+                        <tr>
+                            <td> {{ appointment.student_display_name }}</td>
+                            <td> {{ appointment.appointment_class }}</td>
+                            <td> {{ appointment.appointment_day }}</td>
+                            <td> {{ appointment.appointment_start_time[2:-2] }}</td>
+                            <td> {{ appointment.message }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>No upcoming appointments</p>
+            {% endif %}
         </div>
         <div class="logout">
             <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">

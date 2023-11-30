@@ -132,29 +132,29 @@
 
         <div class="box">
             <h2>Upcoming Appointments</h2>
-            <table>
-                <tr>
-                    <th>Student </th>
-                    <th>TA </th>
-                    <th>Class </th>
-                    <th>Day </th>
-                    <th>Time </th>
-                    <th>Message </th>
-                </tr>
-                
-                {% for appointment in upcoming_appointments %}
+            {% if upcoming_appointments %}
+                <table>
                     <tr>
-                        <td> {{ appointment.student_display_name }}</td>
-                        <td> {{ appointment.ta_display_name }}</td>
-                        <td> {{ appointment.appointment_class }}</td>
-                        <td> {{ appointment.appointment_day }}</td>
-                        <td> {{ appointment.appointment_start_time }}</td>
-                        <td> {{ appointment.message }}</td>
+                        <th>TA </th>
+                        <th>Class </th>
+                        <th>Day </th>
+                        <th>Time </th>
+                        <th>Message </th>
                     </tr>
-                {% else %}
-                    <p>No upcoming appointments</p>
-                {% endfor %}
-            </table>
+                    
+                    {% for appointment in upcoming_appointments %}
+                        <tr>
+                            <td> {{ appointment.ta_display_name }}</td>
+                            <td> {{ appointment.appointment_class }}</td>
+                            <td> {{ appointment.appointment_day }}</td>
+                            <td> {{ appointment.appointment_start_time[2:-2] }}</td>
+                            <td> {{ appointment.message }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>No upcoming appointments</p>
+            {% endif %}
         </div>
 
     
