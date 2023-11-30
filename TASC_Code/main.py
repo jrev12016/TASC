@@ -3,7 +3,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, FloatField, TextAreaField, SubmitField, IntegerField, BooleanField, SelectField
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
-from flask_login import current_user # currently not being used
 from flask import request
 from wtforms import StringField, SubmitField, validators
 from datetime import datetime
@@ -277,6 +276,7 @@ def student():
             session['class'] = selected_class
             if  selected_class == None:
                 no_class = 'Please select a valid class'
+                upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id).all()
                 return render_template('student.html', user_name=user_name, user_type=user_type,
                             display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, no_class = no_class, upcoming_appointments = upcoming_appointments)
             else:    

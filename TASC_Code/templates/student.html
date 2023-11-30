@@ -41,7 +41,7 @@
                     {% endfor %}
                 </select>
                 <!-- Submit button to trigger form submission -->
-                <button type="submit" name="submit_class">Submit</button>
+                <button type="submit" name="submit_class">Submit Class</button>
             </form>
             
             <br>
@@ -109,26 +109,6 @@
             <input type="submit" name="submit_appointment" value="Submit Appointment">
         </form>
         {% endif %}
-        
-
-        <!-- Display Upcoming Appointments
-        <div class="box">
-            <h2>Upcoming Appointments</h2>
-            <ul>
-                {% for appointment in upcoming_appointments %}
-                    <li>
-                        <strong>StudentName:</strong> {{ appointment.student_display_name }}<br>
-                        <strong>TAName:</strong> {{ appointment.ta_display_name }}<br>
-                        <strong>Class:</strong> {{ appointment.appointment_class }}<br>
-                        <strong>Date:</strong> {{ appointment.appointment_day }}<br>
-                        <strong>Time:</strong> {{ appointment.appointment_start_time }}<br>
-                        <strong>Message:</strong> {{ appointment.message }}
-                    </li>
-                {% else %}
-                    <p>No upcoming appointments</p>
-                {% endfor %}
-            </ul>
-        </div> -->
 
         <div class="box">
             <h2>Upcoming Appointments</h2>
