@@ -81,33 +81,35 @@
             </form>
             {% endif %}
         </div>
-
+        {% if no_times %}
+            <p>{{ no_times }}</p>
+        {% else %}
+            <!-- Third Form: Select Time and Optional Question -->
+            {% if time_response %}
+            <form method="POST" action="">
+                <!-- Select Time -->
+                <label for="time_choice">Select Time:</label>
+                <select id="time_choice" name="time_choice">
+                    <!-- Include options for times -->
+                    {% for t in time_response %}
+                    <option value="{{ t }}">{{ t }}</option>
+                    {% endfor %}
+                    <!-- Add other time options dynamically if needed -->
+                </select>
+                
+                <!-- Optional Question -->
+                <label for="question">Optional Question to Send:</label>
+                <textarea id="question" name="question" rows="4" cols="50"></textarea>
         
-        <!-- Third Form: Select Time and Optional Question -->
-        {% if time_response %}
-        <form method="POST" action="">
-            <!-- Select Time -->
-            <label for="time_choice">Select Time:</label>
-            <select id="time_choice" name="time_choice">
-                <!-- Include options for times -->
-                {% for t in time_response %}
-                <option value="{{ t }}">{{ t }}</option>
-                {% endfor %}
-                <!-- Add other time options dynamically if needed -->
-            </select>
-            
-            <!-- Optional Question -->
-            <label for="question">Optional Question to Send:</label>
-            <textarea id="question" name="question" rows="4" cols="50"></textarea>
-    
-            <!-- Hidden fields to carry forward selected values -->
-            <input type="hidden" name="selected_class" value="{{ selected_class }}">
-            <input type="hidden" name="selected_ta" value="{{ selected_ta }}">
-            <input type="hidden" name="selected_day" value="{{ selected_day }}">
-            
-            <!-- Submit Button -->
-            <input type="submit" name="submit_appointment" value="Submit Appointment">
-        </form>
+                <!-- Hidden fields to carry forward selected values -->
+                <input type="hidden" name="selected_class" value="{{ selected_class }}">
+                <input type="hidden" name="selected_ta" value="{{ selected_ta }}">
+                <input type="hidden" name="selected_day" value="{{ selected_day }}">
+                
+                <!-- Submit Button -->
+                <input type="submit" name="submit_appointment" value="Submit Appointment">
+            </form>
+            {% endif %}
         {% endif %}
 
         <div class="box">

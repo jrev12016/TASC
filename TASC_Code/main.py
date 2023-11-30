@@ -288,16 +288,21 @@ def student():
                             display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, upcoming_appointments = upcoming_appointments)
             
         elif 'submit_ta_day' in request.form:
+            upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id).all()
             selected_ta = request.form.get('ta_choice')
             session['selected_ta'] = selected_ta
             selected_day = request.form.get('day_choice')
             session['selected_day'] = selected_day
             time_response = get_availability(selected_ta, selected_day)
+            if time_response == [['Not Available']]:
+                no_times = 'There are no available times for the selected TA and Day. Please try again.'
+                return render_template('student.html', user_name=user_name, user_type=user_type,
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, selected_ta = selected_ta, selected_day = selected_day, upcoming_appointments = upcoming_appointments, no_times=no_times)
             ta_id =  get_ta_id(selected_ta) # Get ta_id, this will be used for the appoint db table.
             session['ta_id'] = ta_id
 
-            # refresh the upcoming appointments
-            upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id).all()
+            for t 
+            
             return render_template('student.html', user_name=user_name, user_type=user_type,
                             display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, selected_ta = selected_ta, selected_day = selected_day, upcoming_appointments = upcoming_appointments)
         
@@ -320,7 +325,7 @@ def student():
             db.session.commit()
         
     upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id).all()
-
+    session['class'] = None
     # Render the student page with class names, selected class, and TAs
     return render_template('student.html', user_name=user_name, user_type=user_type,
                             display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, upcoming_appointments = upcoming_appointments)
