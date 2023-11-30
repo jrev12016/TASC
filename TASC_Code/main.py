@@ -266,11 +266,44 @@ def student():
         if 'submit_class' in request.form:
             # get the selected class and fetch TAs
             selected_class = request.form.get('class_choice')
-            tas_response = get_tas(selected_class)
+            session['class'] = selected_class
+            if  selected_class == None:
+                no_class = 'Please select a valid class'
+                return render_template('student.html', user_name=user_name, user_type=user_type,
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, no_class = no_class)
+            else:    
+                tas_response = get_tas(selected_class)
+                return render_template('student.html', user_name=user_name, user_type=user_type,
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response)
+            
         elif 'submit_ta_day' in request.form:
             selected_ta = request.form.get('ta_choice')
+            # session['selected_ta'] = selected_ta
             selected_day = request.form.get('day_choice')
             time_response = get_availability(selected_ta, selected_day)
+            ta_id =  get_ta_id(selected_ta) # Get ta_id, this will be used for the appoint db table.
+            session['ta_id'] = ta_id
+            return render_template('student.html', user_name=user_name, user_type=user_type,
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, selected_ta = selected_ta, selected_day = selected_day)
+            #selected_student = user_id
+        elif 'submit_appointment' in request.form:
+            selected_time = request.form.get('time_choice')
+            selected_question = request.form.get('question')
+
+            # Create a new appointment in the database
+
+            appointment = Scheduled_Appointments(
+                ta_id=session['ta_id'],
+                student_id=user_id,
+                appointment_start_time=selected_time,
+                message=selected_question
+            )
+
+            db.session.add(appointment)
+            db.session.commit()
+        
+        
+        
 
 
         
@@ -373,6 +406,12 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+def get_ta_id(selected_ta):
+    ta = User.query.filter_by(display_name=selected_ta).first()
+    # make sure this doesnt return a tuple
+    if ta:
+        return ta.id
+    return None  # Return None if TA is not found
 
 def get_tas(selected_class):
     ta_names = []
@@ -420,6 +459,10 @@ def timesplit(time_slot):
     ]
     current_time = time_slot[0] # start time
     end_time = time_slot[1] # end time
+
+    # Check if start and end times are in the available_times list
+    if current_time not in available_times or end_time not in available_times:
+        return [['Not Available']]
 
     start_index = available_times.index(current_time)
     end_index = available_times.index(end_time)
