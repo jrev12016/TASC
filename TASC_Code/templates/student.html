@@ -82,37 +82,37 @@
             {% endif %}
         </div>
 
-        <div class="box">
-            <!-- Third Form: Select Time and Optional Question -->
-            {% if time_response %}
-            <form method="POST" action="">
-                <!-- Select Time -->
-                <label for="time_choice">Select Time:</label>
-                <select id="time_choice" name="time_choice">
-                    <!-- Include options for times -->
-                    {% for t in time_response %}
-                    <option value="{{ t }}">{{ t }}</option>
-                    {% endfor %}
-                    <!-- Add other time options dynamically if needed -->
-                </select>
-                
-                <!-- Optional Question -->
-                <label for="question">Optional Question to Send:</label>
-                <textarea id="question" name="question" rows="4" cols="50"></textarea>
         
-                <!-- Hidden fields to carry forward selected values -->
-                <input type="hidden" name="selected_class" value="{{ selected_class }}">
-                <input type="hidden" name="selected_ta" value="{{ selected_ta }}">
-                <input type="hidden" name="selected_day" value="{{ selected_day }}">
-                
-                <!-- Submit Button -->
-                <input type="submit" name="submit_appointment" value="Submit Appointment">
-            </form>
-            {% endif %}
-        </div>
+        <!-- Third Form: Select Time and Optional Question -->
+        {% if time_response %}
+        <form method="POST" action="">
+            <!-- Select Time -->
+            <label for="time_choice">Select Time:</label>
+            <select id="time_choice" name="time_choice">
+                <!-- Include options for times -->
+                {% for t in time_response %}
+                <option value="{{ t }}">{{ t }}</option>
+                {% endfor %}
+                <!-- Add other time options dynamically if needed -->
+            </select>
+            
+            <!-- Optional Question -->
+            <label for="question">Optional Question to Send:</label>
+            <textarea id="question" name="question" rows="4" cols="50"></textarea>
+    
+            <!-- Hidden fields to carry forward selected values -->
+            <input type="hidden" name="selected_class" value="{{ selected_class }}">
+            <input type="hidden" name="selected_ta" value="{{ selected_ta }}">
+            <input type="hidden" name="selected_day" value="{{ selected_day }}">
+            
+            <!-- Submit Button -->
+            <input type="submit" name="submit_appointment" value="Submit Appointment">
+        </form>
+        {% endif %}
+        
 
         <!-- Display Upcoming Appointments -->
-        <div>
+        <div class="box">
             <h2>Upcoming Appointments</h2>
             <ul>
                 {% for appointment in upcoming_appointments %}
