@@ -267,7 +267,8 @@ def student():
     class_names = list(set(course.classname for course in available_classes))
 
     tas_response = []
-    time_response =[]
+    time_response = []
+    upcoming_appointments= []
 
     if request.method == 'POST':
         if 'submit_class' in request.form:
@@ -277,11 +278,14 @@ def student():
             if  selected_class == None:
                 no_class = 'Please select a valid class'
                 return render_template('student.html', user_name=user_name, user_type=user_type,
-                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, no_class = no_class)
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, no_class = no_class, upcoming_appointments = upcoming_appointments)
             else:    
                 tas_response = get_tas(selected_class)
+
+                # refresh the upcoming appointments
+                upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id).all()
                 return render_template('student.html', user_name=user_name, user_type=user_type,
-                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response)
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, upcoming_appointments = upcoming_appointments)
             
         elif 'submit_ta_day' in request.form:
             selected_ta = request.form.get('ta_choice')
@@ -291,8 +295,11 @@ def student():
             time_response = get_availability(selected_ta, selected_day)
             ta_id =  get_ta_id(selected_ta) # Get ta_id, this will be used for the appoint db table.
             session['ta_id'] = ta_id
+
+            # refresh the upcoming appointments
+            upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id).all()
             return render_template('student.html', user_name=user_name, user_type=user_type,
-                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, selected_ta = selected_ta, selected_day = selected_day)
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, selected_ta = selected_ta, selected_day = selected_day, upcoming_appointments = upcoming_appointments)
         
         elif 'submit_appointment' in request.form:
             selected_time = request.form.get('time_choice')
@@ -312,7 +319,7 @@ def student():
             db.session.add(appointment)
             db.session.commit()
         
-    upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id,Scheduled_Appointments.appointment_day == session['selected_day']).all()
+    upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id).all()
 
     # Render the student page with class names, selected class, and TAs
     return render_template('student.html', user_name=user_name, user_type=user_type,
@@ -326,7 +333,7 @@ def ta():
     ta_id = session['user_id']    
     print(ta_id)
     # Retrieve TA availability outside the form validation block
-    ta_availability = TAAvailability.query.filter_by(ta_id=ta_id).first()
+    ta_availability = TAAvailability.query.filter_by(ta_id=session['user_id']).first() #here
 
     if request.method == 'POST':
         print(request.form)
@@ -335,7 +342,7 @@ def ta():
             classname = add_class_form.classname.data
 
             # Create a new class entry
-            new_class = Class(classname=classname, ta_id=ta_id)
+            new_class = Class(classname=classname, ta_id=session['user_id']) #here
     
             try:
                 db.session.add(new_class)
@@ -349,7 +356,7 @@ def ta():
         elif update_availability_form.validate_on_submit():
             # Update availability for the new class
             if ta_availability is None:
-                ta_availability = TAAvailability(ta_id=ta_id)
+                ta_availability = TAAvailability(ta_id=session['user_id']) #here
 
            # Make a list of times
             available_times = [
@@ -395,9 +402,11 @@ def ta():
         return redirect(url_for('ta'))
    
     ta_username = session.get('user_name')
-    enrolled_classes = Class.query.filter_by(ta_id=ta_id).all()
+    enrolled_classes = Class.query.filter_by(ta_id=session['user_id']).all() #here
 
-    return render_template('ta.html', add_class_form=add_class_form, update_availability_form=update_availability_form, enrolled_classes=enrolled_classes, ta_availability=ta_availability)
+    upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.ta_id == session['user_id']).all()
+
+    return render_template('ta.html', add_class_form=add_class_form, update_availability_form=update_availability_form, enrolled_classes=enrolled_classes, ta_availability=ta_availability, upcoming_appointments = upcoming_appointments)
 
 @app.route('/logout', methods=['GET', 'POST'])
 def logout():
