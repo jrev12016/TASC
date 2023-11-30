@@ -57,7 +57,11 @@ class Appointment(db.Model):
 class Scheduled_Appointments(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ta_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    ta_display_name = db.Column(db.String(50), nullable=False)
     student_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    student_display_name = db.Column(db.String(50), nullable=False)
+    appointment_class = db.Column(db.String(50), nullable=False)
+    appointment_day = db.Column(db.String(20), nullable=False)
     appointment_start_time = db.Column(db.String(20), nullable=False)
     message = db.Column(db.String(200), nullable=True)
 
@@ -251,6 +255,9 @@ def student():
     user_name = User.query.get(session['user_id']).user_name
     user_type = User.query.get(session['user_id']).user_type
     display_name = User.query.get(session['user_id']).display_name
+
+    # Initialize selected_day
+    selected_day = None  
     
     # Create an instance of the StudentAppointmentForm
     form = StudentAppointmentForm()
@@ -278,46 +285,38 @@ def student():
             
         elif 'submit_ta_day' in request.form:
             selected_ta = request.form.get('ta_choice')
-            # session['selected_ta'] = selected_ta
+            session['selected_ta'] = selected_ta
             selected_day = request.form.get('day_choice')
+            session['selected_day'] = selected_day
             time_response = get_availability(selected_ta, selected_day)
             ta_id =  get_ta_id(selected_ta) # Get ta_id, this will be used for the appoint db table.
             session['ta_id'] = ta_id
             return render_template('student.html', user_name=user_name, user_type=user_type,
                             display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, selected_ta = selected_ta, selected_day = selected_day)
-            #selected_student = user_id
+        
         elif 'submit_appointment' in request.form:
             selected_time = request.form.get('time_choice')
             selected_question = request.form.get('question')
 
             # Create a new appointment in the database
-
             appointment = Scheduled_Appointments(
                 ta_id=session['ta_id'],
+                ta_display_name=session.get('selected_ta'),
                 student_id=user_id,
+                student_display_name = user_name,
+                appointment_class = session['class'],
+                appointment_day = session['selected_day'],
                 appointment_start_time=selected_time,
                 message=selected_question
             )
-
             db.session.add(appointment)
             db.session.commit()
         
-        
-        
-
-
-        
-
+    upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id,Scheduled_Appointments.appointment_day == session['selected_day']).all()
 
     # Render the student page with class names, selected class, and TAs
     return render_template('student.html', user_name=user_name, user_type=user_type,
-                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response)
-
-    # Render the student page with unique class names and the form
-    '''
-    return render_template('student.html', user_name=user_name, user_type=user_type,
-                            display_name=display_name, class_names=class_names, form=form, tas_response=None)
-    '''
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, upcoming_appointments = upcoming_appointments)
     
 @app.route('/ta', methods=['GET', 'POST'])
 def ta():
@@ -325,7 +324,7 @@ def ta():
     update_availability_form = UpdateAvailabilityForm()
 
     ta_id = session['user_id']    
-
+    print(ta_id)
     # Retrieve TA availability outside the form validation block
     ta_availability = TAAvailability.query.filter_by(ta_id=ta_id).first()
 

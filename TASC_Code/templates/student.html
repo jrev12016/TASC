@@ -110,16 +110,26 @@
             </form>
             {% endif %}
         </div>
-        
-        <div class="box">
-            <!-- Optional Question -->
-            <label for="question">Optional Question to Send:</label>
-            <textarea id="question" name="question" rows="4" cols="50"></textarea>
+
+        <!-- Display Upcoming Appointments -->
+        <div>
+            <h2>Upcoming Appointments</h2>
+            <ul>
+                {% for appointment in upcoming_appointments %}
+                    <li>
+                        <strong>StudentName:</strong> {{ appointment.student_display_name }}<br>
+                        <strong>TAName:</strong> {{ appointment.ta_display_name }}<br>
+                        <strong>Class:</strong> {{ appointment.appointment_class }}<br>
+                        <strong>Date:</strong> {{ appointment.appointment_day }}<br>
+                        <strong>Time:</strong> {{ appointment.appointment_start_time }}<br>
+                        <strong>Message:</strong> {{ appointment.message }}
+                    </li>
+                {% else %}
+                    <p>No upcoming appointments</p>
+                {% endfor %}
+            </ul>
         </div>
-        
-        <!-- Submit Button -->
-        <input type="submit" value="Submit">
-        </form>                                             <!--FROM BRYCE: What form is this attached to?-->
+
     
         <div class="logout">
             <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
