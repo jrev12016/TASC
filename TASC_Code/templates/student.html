@@ -111,7 +111,7 @@
         {% endif %}
         
 
-        <!-- Display Upcoming Appointments -->
+        <!-- Display Upcoming Appointments
         <div class="box">
             <h2>Upcoming Appointments</h2>
             <ul>
@@ -128,6 +128,33 @@
                     <p>No upcoming appointments</p>
                 {% endfor %}
             </ul>
+        </div> -->
+
+        <div class="box">
+            <h2>Upcoming Appointments</h2>
+            <table>
+                <tr>
+                    <th>Student </th>
+                    <th>TA </th>
+                    <th>Class </th>
+                    <th>Day </th>
+                    <th>Time </th>
+                    <th>Message </th>
+                </tr>
+                
+                {% for appointment in upcoming_appointments %}
+                    <tr>
+                        <td> {{ appointment.student_display_name }}</td>
+                        <td> {{ appointment.ta_display_name }}</td>
+                        <td> {{ appointment.appointment_class }}</td>
+                        <td> {{ appointment.appointment_day }}</td>
+                        <td> {{ appointment.appointment_start_time }}</td>
+                        <td> {{ appointment.message }}</td>
+                    </tr>
+                {% else %}
+                    <p>No upcoming appointments</p>
+                {% endfor %}
+            </table>
         </div>
 
     
