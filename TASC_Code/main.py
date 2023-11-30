@@ -22,7 +22,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
-# Added user_type to denote admin, TA, & Student
+# Added user_type to denote TA & Student
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_type = db.Column(db.String(50), nullable=False)
@@ -93,7 +93,7 @@ def get_time_intervals():
     return intervals
 
 class SignupForm(FlaskForm):
-    user_type = SelectField('Please select user type:', choices=[('Admin', 'Admin'), ('TA', 'TA'), ('Student', 'Student')], validators=[DataRequired()])
+    user_type = SelectField('Please select user type:', choices=[('TA', 'TA'), ('Student', 'Student')], validators=[DataRequired()])
     user_name = StringField('Username:', validators=[DataRequired()])
     password = StringField('Password:', validators=[DataRequired()])
     confirm_password = StringField('Confirm your password:', validators=[DataRequired()])
