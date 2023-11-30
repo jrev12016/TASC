@@ -300,8 +300,6 @@ def student():
                             display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, selected_ta = selected_ta, selected_day = selected_day, upcoming_appointments = upcoming_appointments, no_times=no_times)
             ta_id =  get_ta_id(selected_ta) # Get ta_id, this will be used for the appoint db table.
             session['ta_id'] = ta_id
-
-            for t 
             
             return render_template('student.html', user_name=user_name, user_type=user_type,
                             display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, selected_ta = selected_ta, selected_day = selected_day, upcoming_appointments = upcoming_appointments)
