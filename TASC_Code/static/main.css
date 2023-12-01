@@ -1,15 +1,44 @@
+* {
+    font-family: 'Courier New', Courier, monospace;
+}
 body{
     background-color: #023020;
 }
 
-.container{
+.banner {
+    position: absolute;
     background-color: #FEF9F3;
     text-align: center;
-    height: 600px;
+    height: 26%;
     width: 400px;
+    border: 2px solid #333;
+    box-sizing: border-box;
+    top: 10;
+    border-radius: 10px;
+    left: 35%;
+}
+.banner img{
+    position: absolute;
+    width: 200px;
+    height: 150px;
+    top: -20px;
+    left: 100px;
+}
+.banner h1{
+    margin-top: 25%;
+}
+
+.container{
+    
+    background-color: #FEF9F3;
+    text-align: center;
+    height: 84%;
+    width: 400px;
+    top: 30%;
     border-radius: 10px;
     position: absolute;
     left: 35%;
+    bottom: 0;
 }
 
 input[type=text], select {
@@ -32,6 +61,7 @@ input[type=submit] {
     border-radius: 4px;
     cursor: pointer;
 }
+
 input[type=password]{
     width: 90%;
     padding: 12px 20px;
@@ -41,8 +71,14 @@ input[type=password]{
     border-radius: 4px;
     box-sizing: border-box;  
 }
+
 input[type=submit]:hover {
     background-color: #45a049;
     transform: scale(1.1);
     transition: transform 0.2s ease-in-out;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
 }

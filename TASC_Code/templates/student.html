@@ -1,38 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Student</title>
-    </head>
-    <body>
-        <div class="container">
-            <p>Welcome Student</p>
-                <br>
-                <h3>Schedule Appointment</h3>
-                {% if form %}
-                    <form method = "post">
-                        {{form.hidden_tag()}}
-                        {{form.TA.label}} {{form.TA}}
-                        <br>
-                        {{form.day.label}} {{form.day}}
-                        <br>
-                        {{form.submit}}          
-                        <br>              
-                    </form>
-                {% else %}
-                    <p>{{ TA }}</p>
-                    <p>{{ day }}</p>
-                    <select id="dropdown" name="available_times">
-                        {% for time in list_available %}
-                            <option value="{{ time }}">{{ time }}</option>
-                        {% endfor %}
-                    </select>
-                {% endif %}
-                <br>
+
+<head>
+    <link rel="stylesheet" href="/static/student_style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Page</title>
+</head>
+
+<body>
+    <div class="banner">
+        <h1>Welcome, {{ display_name }}!</h1>
+    </div>
+    
+
+    <!-- Display any flash messages -->
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class="flashes">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Form to let students schedule an appointment -->
+    <div class="container">
+        
+        <br>
+
+        <div class="box">
+            <form method="POST" action=""> 
+                <!-- Select Class -->
+                <label for="class_choice">Select Class:</label>
+                <select id="class_choice" name="class_choice">
+                    <option value="" disabled selected>Select Class</option>
+                    {% for class_name in class_names %}
+                        <option value="{{ class_name }}">{{ class_name }}</option>
+                    {% endfor %}
+                </select>
+                <!-- Submit button to trigger form submission -->
+                <button type="submit" name="submit_class">Submit Class</button>
+            </form>
+            
+            <br>
+            <!-- Displays error message if no class is selected -->
+            {% if no_class %}
+                <p>{{ no_class }}</p>
+            {% endif %}
+            <!-- Displays selected class if class has been selected -->
+            {% if session['class'] %}
+                <p>Class selected: {{ session['class'] }}</p>
+            {% endif %}
+            {% if selected_day %}
+                <p>Day: {{ selected_day }}</p>
+            {% endif %}
+            {% if selected_ta %}
+                <p>TA: {{ selected_ta }}</p>
+            {% endif %}
+            <!-- Second Form: Select TA and Day -->
+            {% if tas_response %}
+            <form method="POST" action="">
+                <label for="ta_choice">Select TA:</label>
+                <select id="ta_choice" name="ta_choice">
+                    {% for ta in tas_response %}
+                    <option value="{{ ta }}">{{ ta }}</option>
+                    {% endfor %}
+                </select>
+                
+                <label for="day_choice">Select Day:</label>
+                <select id="day_choice" name="day_choice">
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                </select>
+                <button type="submit" name="submit_ta_day">Submit TA and Day</button>
+            </form>
+            {% endif %}
+        </div>
+        {% if no_times %}
+            <p>{{ no_times }}</p>
+        {% else %}
+            <!-- Third Form: Select Time and Optional Question -->
+            {% if time_response %}
+            <form method="POST" action="">
+                <!-- Select Time -->
+                <label for="time_choice">Select Time:</label>
+                <select id="time_choice" name="time_choice">
+                    <!-- Include options for times -->
+                    {% for t in time_response %}
+                    <option value="{{ t }}">{{ t }}</option>
+                    {% endfor %}
+                    <!-- Add other time options dynamically if needed -->
+                </select>
+                
+                <!-- Optional Question -->
+                <label for="question">Optional Question to Send:</label>
+                <textarea id="question" name="question" rows="4" cols="50"></textarea>
+        
+                <!-- Hidden fields to carry forward selected values -->
+                <input type="hidden" name="selected_class" value="{{ selected_class }}">
+                <input type="hidden" name="selected_ta" value="{{ selected_ta }}">
+                <input type="hidden" name="selected_day" value="{{ selected_day }}">
+                
+                <!-- Submit Button -->
+                <input type="submit" name="submit_appointment" value="Submit Appointment">
+            </form>
+            {% endif %}
+        {% endif %}
+
+        <div class="box">
+            <h2>Upcoming Appointments</h2>
+            {% if upcoming_appointments %}
+                <table>
+                    <tr>
+                        <th>TA </th>
+                        <th>Class </th>
+                        <th>Day </th>
+                        <th>Time </th>
+                        <th>Message </th>
+                    </tr>
+                    
+                    {% for appointment in upcoming_appointments %}
+                        <tr>
+                            <td> {{ appointment.ta_display_name }}</td>
+                            <td> {{ appointment.appointment_class }}</td>
+                            <td> {{ appointment.appointment_day }}</td>
+                            <td> {{ appointment.appointment_start_time[2:-2] }}</td>
+                            <td> {{ appointment.message }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            {% else %}
+                <p>No upcoming appointments</p>
+            {% endif %}
+        </div>
+
+    
+        <div class="logout">
             <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
                 <button type="submit" class="btn btn-primary" value="Logout">Logout</button>
             </form>
         </div>
-    </body>
+    
+    </div>
+</body>
 </html>

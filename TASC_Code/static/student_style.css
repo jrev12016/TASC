@@ -1,0 +1,75 @@
+* {
+    font-family: 'Courier New', Courier, monospace;
+}
+
+body {
+    background-color: #023020;
+    width: 100%;
+}
+
+.banner {
+    position: relative;
+    background-color: #FEF9F3;
+    text-align: center;
+    height: 13%;
+    width: 98.5%; /* fixes the left showing the background but not the right */
+    border: 2px solid #333;
+    box-sizing: border-box;
+    top: 10;
+    border-radius: 10px;
+    align-items: center;
+}
+
+.container {
+    background-color: #FEF9F3;
+    text-align: center;
+    height: 84%;
+    width: 98.5%; /* fixes the left showing the background but not the right */
+    border-radius: 10px;
+    position: relative;
+    bottom: 0;
+    align-items: center;
+}
+
+.box {
+    flex: 1;
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid #ddd;
+}
+
+input[type=submit] {
+    width: 30%;
+    background-color: #4CAF50;
+    color: white;
+    padding: 2%;
+    margin: 8px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.logout{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    height: 35vh;
+    padding-bottom: 10px;
+}
+
+.logout button{
+    margin-top: 10px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 50px;
+    margin-left: auto;
+    margin-right: auto;
+}
