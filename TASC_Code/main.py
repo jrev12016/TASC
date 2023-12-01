@@ -149,7 +149,7 @@ class UpdateAvailabilityForm(FlaskForm):
 
     submit = SubmitField('Update Availability')
 
-# Default page changed from home to signup
+# Default page changed to signup
 @app.route('/', methods=['GET','POST'])
 def signup():
 
@@ -190,22 +190,6 @@ def signup():
 
     return render_template('signup.html', form=form)
 
-@app.route('/home', methods=['GET','POST'])
-def home():
-        
-    # checks to see if user is logged in, if not redirects to login page
-    if 'user_id' not in session:
-        # flash('Please log in to continue.', 'warning')
-        return redirect(url_for('login'))
-        
-    # Only for testing currently
-    user_id = User.query.get(session['user_id']).id
-    user_name = User.query.get(session['user_id']).user_name
-    user_type = User.query.get(session['user_id']).user_type
-    display_name = User.query.get(session['user_id']).display_name
-        
-    return render_template('home.html', user_id=user_id, user_name=user_name, user_type=user_type, display_name=display_name)
-
 @app.route('/auth', methods=['GET', 'POST'])
 def auth():
     # shows confirmation of new account creation
@@ -232,8 +216,6 @@ def login():
                 return redirect(url_for('student'))
             elif user.user_type == 'TA':
                 return redirect(url_for('ta'))
-            else:
-                return redirect(url_for('home'))
         else:
             # Failed login, show an error message
             # error function in signup page
