@@ -1,14 +1,10 @@
 from flask import Flask, render_template, session, redirect, url_for, flash
 from flask_wtf import FlaskForm
-from wtforms import StringField, FloatField, TextAreaField, SubmitField, IntegerField, BooleanField, SelectField
+from wtforms import StringField, TextAreaField, SubmitField, SelectField
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
 from flask import request
-from wtforms import StringField, SubmitField, validators
-from datetime import datetime
-from wtforms.fields import HiddenField
 from flask import jsonify
-from flask import current_app
 
 app = Flask (__name__)
 
