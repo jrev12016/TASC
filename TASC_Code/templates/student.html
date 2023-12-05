@@ -77,7 +77,7 @@
                     <option value="Thursday">Thursday</option>
                     <option value="Friday">Friday</option>
                 </select>
-                <button type="submit" name="submit_ta_day">Submit TA and Day</button>
+                <button type="submit" name="submit_ta_day">Submit TA & Day</button>
             </form>
             {% endif %}
         </div>
@@ -122,6 +122,7 @@
                         <th>Day </th>
                         <th>Time </th>
                         <th>Message </th>
+                        <th></th>
                     </tr>
                     
                     {% for appointment in upcoming_appointments %}
@@ -131,15 +132,20 @@
                             <td> {{ appointment.appointment_day }}</td>
                             <td> {{ appointment.appointment_start_time[2:-2] }}</td>
                             <td> {{ appointment.message }}</td>
+                            <td>
+                                <form method="POST" action="">
+                                    <button type="submit" name="submit_appt_choice" value="{{ appointment.id }}">Cancel Appointment</button>
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>
+                
             {% else %}
                 <p>No upcoming appointments</p>
             {% endif %}
         </div>
 
-    
         <div class="logout">
             <form action="{{ url_for('logout') }}" method="POST" style="display: inline-block;">
                 <button type="submit" class="btn btn-primary" value="Logout">Logout</button>

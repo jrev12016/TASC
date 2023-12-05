@@ -4,7 +4,6 @@ from wtforms import StringField, TextAreaField, SubmitField, SelectField
 from flask_sqlalchemy import SQLAlchemy
 from wtforms.validators import DataRequired
 from flask import request
-from flask import jsonify
 
 app = Flask (__name__)
 
@@ -186,11 +185,7 @@ def signup():
 
     return render_template('signup.html', form=form)
 
-@app.route('/auth', methods=['GET', 'POST'])
-def auth():
-    # shows confirmation of new account creation
-    return render_template('auth.html')
-
+#Login page
 @app.route ('/login', methods=['GET', 'POST'])
 def login():
 
@@ -301,6 +296,17 @@ def student():
             db.session.commit()
         
     upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id).all()
+
+    # allow for appointments to be deleted
+    if 'submit_appt_choice' in request.form:
+        selected_appt_id = request.form.get('submit_appt_choice')
+        cancelled_appt = Scheduled_Appointments.query.filter(Scheduled_Appointments.id == selected_appt_id).first()
+        db.session.delete(cancelled_appt)
+        db.session.commit()
+        upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.student_id == user_id).all()
+        return render_template('student.html', user_name=user_name, user_type=user_type,
+                            display_name=display_name, form=form, class_names=class_names, tas_response = tas_response, time_response = time_response, upcoming_appointments = upcoming_appointments)
+
     session['class'] = None
     # Render the student page with class names, selected class, and TAs
     return render_template('student.html', user_name=user_name, user_type=user_type,
@@ -376,14 +382,24 @@ def ta():
             except Exception as e:
                 print(f"Error committing availability changes: {e}")
                 db.session.rollback()
+        
+        # allow for appointments to be deleted
+        elif 'submit_appt_choice' in request.form:
+            selected_appt_id = request.form.get('submit_appt_choice')
+            print(selected_appt_id)
+            cancelled_appt = Scheduled_Appointments.query.filter(Scheduled_Appointments.id == selected_appt_id).first()
+            db.session.delete(cancelled_appt)
+            db.session.commit()
+            upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.ta_id == ta_id).all()
+            return redirect(url_for('ta'))
+        
         else:
             print("form validation failed")
             print(update_availability_form.errors)
 
         return redirect(url_for('ta'))
    
-    ta_username = session.get('user_name')
-    enrolled_classes = Class.query.filter_by(ta_id=session['user_id']).all() #here
+    enrolled_classes = Class.query.filter_by(ta_id=session['user_id']).all() 
 
     upcoming_appointments = Scheduled_Appointments.query.filter(Scheduled_Appointments.ta_id == session['user_id']).all()
 
@@ -466,10 +482,6 @@ def timesplit(time_slot):
 
     return result
 
-
-@app.route('/test_route', methods=['POST'])
-def test_route():
-    return jsonify({'message': 'Test route success!'})
 
 if __name__ == '__main__':
     with app.app_context():

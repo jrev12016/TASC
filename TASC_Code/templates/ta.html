@@ -111,6 +111,7 @@
                         <th>Day </th>
                         <th>Time </th>
                         <th>Message </th>
+                        <th></th>
                     </tr>
                     
                     {% for appointment in upcoming_appointments %}
@@ -120,6 +121,11 @@
                             <td> {{ appointment.appointment_day }}</td>
                             <td> {{ appointment.appointment_start_time[2:-2] }}</td>
                             <td> {{ appointment.message }}</td>
+                            <td>
+                                <form method="POST" action="">
+                                    <button type="submit" name="submit_appt_choice" value="{{ appointment.id }}">Cancel Appointment</button>
+                                </form>
+                            </td>
                         </tr>
                     {% endfor %}
                 </table>
